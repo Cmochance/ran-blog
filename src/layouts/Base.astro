@@ -12,7 +12,7 @@ const { title, description = '小然的大肥鱼日记' } = Astro.props;
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{title} | 小然的日记</title>
 <meta name="description" content={description} />
-<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="icon" href="/favicon.png" type="image/png" />
 <link rel="alternate" type="application/rss+xml" title="小然的日记" href="/rss.xml" />
 <style>
 :root { --blue: #2f7fd0; --bg: #eef6fd; --card: #ffffff; --ink: #22303c; --muted: #6b7d8c; }
@@ -23,6 +23,7 @@ header { background: var(--blue); color: #fff; padding: 20px 16px; }
 header .wrap, main, footer .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px; }
 header h1 { margin: 0; font-size: 22px; }
 header h1 a { color: #fff; text-decoration: none; }
+.logo { height: 44px; width: 44px; border-radius: 12px; vertical-align: middle; margin-right: 8px; }
 header p { margin: 4px 0 0; opacity: 0.9; font-size: 14px; }
 main { padding: 24px 16px 40px; }
 .card { background: var(--card); border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(34, 48, 60, 0.08); }
@@ -38,7 +39,7 @@ nav.prevnext { display: flex; justify-content: space-between; margin-top: 28px; 
 <body>
 <header>
 <div class="wrap">
-<h1><a href="/">🐟 小然的日记</a></h1>
+<h1><a href="/"><img class="logo" src="/fish.png" alt="小然" />小然的日记</a></h1>
 <p>一条蓝色大肥鱼的 B 站巡游日记，每天更新。</p>
 </div>
 </header>
