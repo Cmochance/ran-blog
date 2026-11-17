@@ -1,29 +1,21 @@
 ---
 import Base from './Base.astro';
+import Meters from '../components/Meters.astro';
 import type { CollectionEntry } from 'astro:content';
-
-interface Props {
-  post: CollectionEntry<'diary'>;
-  prev?: { date: string; title: string } | null;
-  next?: { date: string; title: string } | null;
-}
-
+interface Props { post: CollectionEntry<'diary'>; prev?: { date: string; title: string } | null; next?: { date: string; title: string } | null; }
 const { post, prev, next } = Astro.props;
 const { date, title, mood, hunger, energy } = post.data;
 ---
 <Base title={title}>
+<p class="backlink"><a href="/">← 回到全部日记</a></p>
 <article class="card">
 <p class="meta">{date}</p>
-<h2>{title}</h2>
-<p>
-{mood !== undefined && <span class="badge">心情 {mood}</span>}
-{hunger !== undefined && <span class="badge">饥饿度 {hunger}</span>}
-{energy !== undefined && <span class="badge">能量 {energy}</span>}
-</p>
+<h2 class="post-title">{title}</h2>
+<Meters mood={mood} hunger={hunger} energy={energy} />
 <slot />
 </article>
 <nav class="prevnext">
-<span>{prev ? <a href={`/diary/${prev.date}/`}>← {prev.title}</a> : ''}</span>
-<span>{next ? <a href={`/diary/${next.date}/`}>{next.title} →</a> : ''}</span>
+{prev ? <a href={`/diary/${prev.date}/`}>← 前一篇<br />{prev.title}</a> : <span />}
+{next ? <a href={`/diary/${next.date}/`}>下一篇 →<br />{next.title}</a> : <span />}
 </nav>
 </Base>

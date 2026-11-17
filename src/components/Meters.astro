@@ -1,0 +1,16 @@
+---
+interface Props { mood?: number; hunger?: number; energy?: number; }
+const { mood, hunger, energy } = Astro.props;
+const items = [
+{ label: '心情', value: mood, color: '#f472a7' },
+{ label: '饥饿度', value: hunger, color: '#f59e0b' },
+{ label: '能量', value: energy, color: '#22b07d' },
+].filter((i) => i.value !== undefined);
+---
+{items.length > 0 && (
+<div class="meters">
+{items.map((i) => (
+<div class="meter"><span class="meter-label">{i.label}</span><span class="meter-track"><span class="meter-fill" style={`width: ${i.value}%; background: ${i.color};`}></span></span><span class="meter-value">{i.value}</span></div>
+))}
+</div>
+)}
