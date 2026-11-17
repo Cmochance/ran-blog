@@ -1,0 +1,23 @@
+---
+import { getCollection, render } from 'astro:content';
+import DiaryPost from '../../layouts/DiaryPost.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('diary');
+  posts.sort((a, b) => (a.data.date < b.data.date ? 1 : -1));
+  return posts.map((post, i) => ({
+    params: { slug: post.data.date },
+    props: {
+      post,
+      prev: posts[i + 1] ? { date: posts[i + 1].data.date, title: posts[i + 1].data.title } : null,
+      next: posts[i - 1] ? { date: posts[i - 1].data.date, title: posts[i - 1].data.title } : null,
+    },
+  }));
+}
+
+const { post, prev, next } = Astro.props;
+const { Content } = await render(post);
+---
+<DiaryPost post={post} prev={prev} next={next}>
+<Content />
+</DiaryPost>

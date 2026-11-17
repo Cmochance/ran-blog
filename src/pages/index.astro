@@ -1,0 +1,20 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('diary');
+posts.sort((a, b) => (a.data.date < b.data.date ? 1 : -1));
+---
+<Base title="首页">
+{posts.map((post) => (
+<article class="card">
+<h2><a href={`/diary/${post.data.date}/`}>{post.data.title}</a></h2>
+<p class="meta">{post.data.date}</p>
+<p>
+{post.data.mood !== undefined && <span class="badge">心情 {post.data.mood}</span>}
+{post.data.hunger !== undefined && <span class="badge">饥饿度 {post.data.hunger}</span>}
+{post.data.energy !== undefined && <span class="badge">能量 {post.data.energy}</span>}
+</p>
+</article>
+))}
+</Base>

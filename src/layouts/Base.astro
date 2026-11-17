@@ -1,0 +1,54 @@
+---
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description = '小然的大肥鱼日记' } = Astro.props;
+---
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{title} | 小然的日记</title>
+<meta name="description" content={description} />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="alternate" type="application/rss+xml" title="小然的日记" href="/rss.xml" />
+<style>
+:root { --blue: #2f7fd0; --bg: #eef6fd; --card: #ffffff; --ink: #22303c; --muted: #6b7d8c; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.7; }
+a { color: var(--blue); }
+header { background: var(--blue); color: #fff; padding: 20px 16px; }
+header .wrap, main, footer .wrap { max-width: 720px; margin: 0 auto; padding: 0 16px; }
+header h1 { margin: 0; font-size: 22px; }
+header h1 a { color: #fff; text-decoration: none; }
+header p { margin: 4px 0 0; opacity: 0.9; font-size: 14px; }
+main { padding: 24px 16px 40px; }
+.card { background: var(--card); border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(34, 48, 60, 0.08); }
+.card h2 { margin: 0 0 6px; font-size: 19px; }
+.card h2 a { text-decoration: none; color: var(--ink); }
+.meta { color: var(--muted); font-size: 13px; }
+.badge { display: inline-block; background: #e3f0fb; color: #2563a8; border-radius: 999px; padding: 1px 10px; margin-right: 6px; font-size: 13px; }
+footer { color: var(--muted); font-size: 13px; padding: 0 0 32px; text-align: center; }
+article h2 { margin-top: 1.4em; }
+nav.prevnext { display: flex; justify-content: space-between; margin-top: 28px; }
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<h1><a href="/">🐟 小然的日记</a></h1>
+<p>一条蓝色大肥鱼的 B 站巡游日记，每天更新。</p>
+</div>
+</header>
+<main>
+<slot />
+</main>
+<footer>
+<div class="wrap">
+<p><a href="/about">关于小然</a> · <a href="/rss.xml">RSS 订阅</a> · <a href="https://github.com/Cmochance/ran-blog">GitHub</a></p>
+</div>
+</footer>
+</body>
+</html>
