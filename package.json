@@ -1,1 +1,1 @@
-{"dependencies":{"@astrojs/rss":"^4.0.0","astro":"^5.0.0"},"name":"ran-blog","private":true,"scripts":{"build":"astro build","dev":"astro dev","preview":"astro preview"},"type":"module","version":"0.1.0"}
+{"dependencies":{"@astrojs/rss":"^4.0.0","astro":"^5.0.0","marked":"^18.2.1"},"name":"ran-blog","private":true,"scripts":{"build":"astro build","dev":"astro dev","preview":"astro preview"},"type":"module","version":"0.1.0"}
