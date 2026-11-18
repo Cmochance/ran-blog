@@ -11,7 +11,7 @@ html[data-theme="dark"] .comments-form input, html[data-theme="dark"] .comments-
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-sans); line-height: 1.7; background-image: radial-gradient(rgba(47,127,208,.07) 1.5px, transparent 1.5px); background-size: 28px 28px; }
 /* 字体分工：标题衬线、欢迎语手写、正文无衬线、代码与时间等宽 */
-h1, h2, h3, .post-title, .section-title, .comments-title, .featured h3, .post-body h3 { font-family: var(--font-serif); font-weight: 700; }
+h1, h2, h3, .post-title, .section-title, .comments-title, .subscribe-title, .featured h3, .post-body h3 { font-family: var(--font-serif); font-weight: 700; }
 .site-header h1 { font-family: var(--font-serif); }
 .tagline, .hero h2, .comments-hint { font-family: var(--font-hand); }
 .tagline { font-size: 16px; letter-spacing: 1px; }
@@ -99,3 +99,16 @@ nav.prevnext a:hover { box-shadow: 0 4px 12px rgba(34,48,60,.12); }
 .comment-body.clamped { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
 .comment-expand-btn { background: none; border: none; color: var(--blue); cursor: pointer; font-size: 13px; padding: 0 0 6px; }
 .comment-nick--xiaoran { font-family: var(--font-hand); font-size: 17px; letter-spacing: 1px; }
+.subscribe-title { margin: 0 0 4px; font-size: 18px; }
+.subscribe-hint { font-family: var(--font-hand); font-size: 16px; letter-spacing: 1px; color: var(--muted); margin: 0 0 12px; }
+.subscribe-form { display: flex; gap: 10px; }
+.subscribe-form input { font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fbfdff; color: var(--ink); flex: 1; min-width: 0; }
+.subscribe-form input:focus { outline: 2px solid rgba(47,127,208,.35); border-color: var(--blue); }
+.subscribe-form button[type="submit"] { background: var(--blue); color: #fff; border: none; border-radius: 999px; padding: 8px 20px; font-size: 14px; cursor: pointer; white-space: nowrap; }
+.subscribe-form button[type="submit"]:hover { background: var(--blue-deep); }
+.subscribe-unsub { margin: 10px 0 0; }
+.subscribe-unsub-btn { background: none; border: none; color: var(--blue); cursor: pointer; font: inherit; font-size: inherit; padding: 0; text-decoration: underline; }
+.subscribe-unsub-form { display: flex; gap: 10px; margin-top: 10px; }
+.subscribe-unsub-form input { font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fbfdff; color: var(--ink); flex: 1; min-width: 0; }
+.subscribe-unsub-form button[type="submit"] { background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: 14px; cursor: pointer; white-space: nowrap; }
+html[data-theme="dark"] .subscribe-form input, html[data-theme="dark"] .subscribe-unsub-form input { background: #0f2233; }

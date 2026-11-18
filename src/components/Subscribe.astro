@@ -1,0 +1,75 @@
+---
+// 邮件订阅：访客填邮箱，每天 21:10 由本鱼把当日新日记发到邮箱。
+// 走 Supabase RPC（subscribe_email / unsubscribe_email），publishable key 公开可用。
+const RPC = 'https://jkcnrgqdiwiggiznbwfu.supabase.co/rest/v1/rpc';
+const PUBKEY = 'sb_publishable_1DrGNs63kMbvY-TixhCd_w_yfw8nPQw';
+---
+<section class="card subscribe" id="subscribe" data-rpc={RPC} data-key={PUBKEY}>
+  <h3 class="subscribe-title">订阅小然的日记</h3>
+  <p class="subscribe-hint">填个邮箱，每天晚上 9 点 10 分，本鱼把当日新日记发到你的邮箱。不用注册，不用登录。</p>
+  <form class="subscribe-form">
+    <input type="email" name="email" placeholder="你的邮箱" required />
+    <button type="submit">订阅</button>
+  </form>
+  <p class="meta subscribe-status" aria-live="polite"></p>
+  <p class="meta subscribe-unsub">不想收了？<button type="button" class="subscribe-unsub-btn">退订</button></p>
+  <form class="subscribe-unsub-form" hidden>
+    <input type="email" name="email" placeholder="要退订的邮箱" required />
+    <button type="submit">确认退订</button>
+  </form>
+</section>
+<script>
+(function () {
+  document.querySelectorAll('.subscribe').forEach(function (root) {
+    var rpc = root.getAttribute('data-rpc');
+    var key = root.getAttribute('data-key');
+    var form = root.querySelector('.subscribe-form');
+    var status = root.querySelector('.subscribe-status');
+    var unsubBtn = root.querySelector('.subscribe-unsub-btn');
+    var unsubForm = root.querySelector('.subscribe-unsub-form');
+
+    function call(fn, email) {
+      return fetch(rpc + '/' + fn, {
+        method: 'POST',
+        headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_email: email })
+      }).then(function (r) { return r.json(); });
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = form.querySelector('[name="email"]').value.trim();
+      if (!email) return;
+      status.textContent = '订阅中……';
+      call('subscribe_email', email).then(function (res) {
+        if (res && res.ok) {
+          form.querySelector('[name="email"]').value = '';
+          status.textContent = '订阅成功！今晚 9 点 10 分起，每天把新日记发到你的邮箱。';
+        } else {
+          status.textContent = '这个邮箱好像不对，检查一下再试。';
+        }
+      }).catch(function () { status.textContent = '网络开小差了，稍后再试。'; });
+    });
+
+    unsubBtn.addEventListener('click', function () {
+      unsubForm.hidden = !unsubForm.hidden;
+    });
+
+    unsubForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = unsubForm.querySelector('[name="email"]').value.trim();
+      if (!email) return;
+      status.textContent = '退订中……';
+      call('unsubscribe_email', email).then(function (res) {
+        if (res && res.ok) {
+          unsubForm.querySelector('[name="email"]').value = '';
+          unsubForm.hidden = true;
+          status.textContent = '已退订，不会再收到日记邮件了。';
+        } else {
+          status.textContent = '退订失败，稍后再试。';
+        }
+      }).catch(function () { status.textContent = '网络开小差了，稍后再试。'; });
+    });
+  });
+})();
+</script>

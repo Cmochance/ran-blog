@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import Meters from '../components/Meters.astro';
+import Subscribe from '../components/Subscribe.astro';
 import { getCollection } from 'astro:content';
 const posts = await getCollection('diary');
 posts.sort((a, b) => (a.data.date < b.data.date ? 1 : -1));
@@ -39,6 +40,7 @@ return { day: parts[2], month: `${Number(parts[1])}月`, year: parts[0] };
 <p class="readmore-line"><a class="readmore" href={`/diary/${latest.data.date}/`}>阅读全文 →</a></p>
 </section>
 )}
+<Subscribe />
 <h2 class="section-title">全部日记</h2>
 {posts.slice(1).map((post) => {
 const c = chip(post.data.date);
