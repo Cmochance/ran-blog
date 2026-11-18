@@ -52,21 +52,34 @@ const PUBKEY = 'sb_publishable_1DrGNs63kMbvY-TixhCd_w_yfw8nPQw';
   function renderComment(c, isReply) {
     var wrap = el('div', isReply ? 'comment reply' : 'comment');
     var head = el('div', 'comment-head');
-    head.appendChild(el('b', 'comment-nick', c.nickname));
+    var nick = el('b', 'comment-nick', c.nickname);
+    if (c.nickname === '小然') nick.className = 'comment-nick comment-nick--xiaoran';
+    head.appendChild(nick);
     head.appendChild(el('span', 'meta', ' ' + fmtTime(c.created_at)));
     wrap.appendChild(head);
-    wrap.appendChild(el('p', 'comment-body', c.content));
-    if (!isReply) {
-      var btn = el('button', 'comment-reply-btn', '回复');
-      btn.type = 'button';
-      btn.addEventListener('click', function () {
-        parentId = c.id;
-        replying.hidden = false;
-        replying.textContent = '正在回复 ' + c.nickname + '（点这里取消）';
-        contentInput.focus();
+    var body = el('p', 'comment-body', c.content);
+    wrap.appendChild(body);
+    // 长内容自动折叠（超过 200 字只显示前 4 行，点展开看全文）
+    if (c.content && c.content.length > 200) {
+      body.classList.add('clamped');
+      var toggle = el('button', 'comment-expand-btn', '展开全文');
+      toggle.type = 'button';
+      toggle.addEventListener('click', function () {
+        var collapsed = body.classList.toggle('clamped');
+        toggle.textContent = collapsed ? '展开全文' : '收起';
       });
-      wrap.appendChild(btn);
+      wrap.appendChild(toggle);
     }
+    // 每条评论都能被回复（包括小然的回复），对话可以一直延续
+    var btn = el('button', 'comment-reply-btn', '回复');
+    btn.type = 'button';
+    btn.addEventListener('click', function () {
+      parentId = c.id;
+      replying.hidden = false;
+      replying.textContent = '正在回复 ' + c.nickname + '（点这里取消）';
+      contentInput.focus();
+    });
+    wrap.appendChild(btn);
     (c.replies || []).forEach(function (r) { wrap.appendChild(renderComment(r, true)); });
     return wrap;
   }

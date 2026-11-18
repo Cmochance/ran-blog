@@ -1,4 +1,4 @@
-:root { --blue: #2f7fd0; --blue-deep: #1d5fa8; --blue-dark: #174a86; --bg: #eef6fd; --card: #ffffff; --ink: #22303c; --muted: #6b7d8c; --line: #dbe9f5; }
+:root { --blue: #2f7fd0; --blue-deep: #1d5fa8; --blue-dark: #174a86; --bg: #eef6fd; --card: #ffffff; --ink: #22303c; --muted: #6b7d8c; --line: #dbe9f5; --font-serif: "Noto Serif SC Variable", "Noto Serif SC", "Songti SC", "STSong", "SimSun", serif; --font-sans: "Noto Sans SC Variable", "Noto Sans SC", -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; --font-hand: "Zhi Mang Xing", "Kaiti SC", "STKaiti", "KaiTi", serif; --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, "Noto Sans Mono", monospace; }
 html[data-theme="dark"] { --blue: #6ea8e0; --blue-deep: #8db9e8; --bg: #0f1c28; --card: #16283a; --ink: #dce8f2; --muted: #93a7b8; --line: #27405a; }
 html[data-theme="dark"] body { background-image: radial-gradient(rgba(110,168,224,.08) 1.5px, transparent 1.5px); }
 html[data-theme="dark"] .hero { background: linear-gradient(135deg, #16283a, #0f2233); }
@@ -9,7 +9,17 @@ html[data-theme="dark"] .comments-form input, html[data-theme="dark"] .comments-
 .theme-toggle { background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.35); color: #fff; border-radius: 999px; padding: 2px 10px; margin-left: 18px; font-size: 15px; cursor: pointer; line-height: 1.6; vertical-align: middle; }
 .theme-toggle:hover { background: rgba(255,255,255,.28); }
 * { box-sizing: border-box; }
-body { margin: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; line-height: 1.7; background-image: radial-gradient(rgba(47,127,208,.07) 1.5px, transparent 1.5px); background-size: 28px 28px; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font-sans); line-height: 1.7; background-image: radial-gradient(rgba(47,127,208,.07) 1.5px, transparent 1.5px); background-size: 28px 28px; }
+/* 字体分工：标题衬线、欢迎语手写、正文无衬线、代码与时间等宽 */
+h1, h2, h3, .post-title, .section-title, .comments-title, .featured h3, .post-body h3 { font-family: var(--font-serif); font-weight: 700; }
+.site-header h1 { font-family: var(--font-serif); }
+.tagline, .hero h2, .comments-hint { font-family: var(--font-hand); }
+.tagline { font-size: 16px; letter-spacing: 1px; }
+.hero h2 { font-size: 24px; }
+.date-chip b, .stat b { font-family: var(--font-serif); }
+code, pre, .comment-head .meta { font-family: var(--font-mono); }
+code { font-size: .92em; }
+pre { font-size: 13px; overflow-x: auto; }
 a { color: var(--blue); }
 .wrap { max-width: 760px; margin: 0 auto; padding: 0 16px; }
 .site-header { background: linear-gradient(135deg, #3b8bd8, var(--blue-deep) 60%, var(--blue-dark)); color: #fff; }
@@ -86,3 +96,6 @@ nav.prevnext a:hover { box-shadow: 0 4px 12px rgba(34,48,60,.12); }
 .comments-form button[type="submit"]:hover { background: var(--blue-deep); }
 .comments-replying { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 0; text-align: left; }
 .comments-status { margin: 0; }
+.comment-body.clamped { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.comment-expand-btn { background: none; border: none; color: var(--blue); cursor: pointer; font-size: 13px; padding: 0 0 6px; }
+.comment-nick--xiaoran { font-family: var(--font-hand); font-size: 17px; letter-spacing: 1px; }
