@@ -1,0 +1,137 @@
+---
+interface Props { page: string; }
+const { page } = Astro.props;
+// Supabase PostgREST（公开读已批准评论、提交待审评论；写操作走 RLS，见 ran-blog-plan.md §14）
+// publishable key 是公开密钥（只能读已批准 + 提交待审），可以放在前端。
+const API = 'https://jkcnrgqdiwiggiznbwfu.supabase.co/rest/v1/comments';
+const PUBKEY = 'sb_publishable_1DrGNs63kMbvY-TixhCd_w_yfw8nPQw';
+---
+<section class="card comments" id="comments" data-page={page} data-api={API} data-key={PUBKEY}>
+  <h3 class="comments-title">评论区</h3>
+  <p class="comments-hint">来都来了，留句话再走呀，不用登录，填个名字就行。</p>
+  <div class="comments-list"><p class="meta">评论加载中……</p></div>
+  <form class="comments-form">
+    <input type="text" name="nickname" maxlength="30" placeholder="你的名字" required />
+    <textarea name="content" maxlength="2000" rows="3" placeholder="写点什么……" required></textarea>
+    <div class="comments-actions">
+      <button type="button" class="comments-replying" hidden></button>
+      <button type="submit">发表评论</button>
+    </div>
+    <p class="meta comments-status" aria-live="polite"></p>
+  </form>
+</section>
+<script>
+(function () {
+  var root = document.getElementById('comments');
+  if (!root) return;
+  var api = root.getAttribute('data-api');
+  var key = root.getAttribute('data-key');
+  var page = root.getAttribute('data-page');
+  var list = root.querySelector('.comments-list');
+  var form = root.querySelector('.comments-form');
+  var nickInput = form.querySelector('[name="nickname"]');
+  var contentInput = form.querySelector('[name="content"]');
+  var status = root.querySelector('.comments-status');
+  var replying = root.querySelector('.comments-replying');
+  var parentId = null;
+
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text !== undefined && text !== null) n.textContent = text;
+    return n;
+  }
+
+  function fmtTime(s) {
+    var d = new Date(s || '');
+    if (isNaN(d.getTime())) return (s || '').replace('T', ' ').slice(0, 16);
+    function p(n) { return (n < 10 ? '0' : '') + n; }
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
+  }
+
+  function renderComment(c, isReply) {
+    var wrap = el('div', isReply ? 'comment reply' : 'comment');
+    var head = el('div', 'comment-head');
+    head.appendChild(el('b', 'comment-nick', c.nickname));
+    head.appendChild(el('span', 'meta', ' ' + fmtTime(c.created_at)));
+    wrap.appendChild(head);
+    wrap.appendChild(el('p', 'comment-body', c.content));
+    if (!isReply) {
+      var btn = el('button', 'comment-reply-btn', '回复');
+      btn.type = 'button';
+      btn.addEventListener('click', function () {
+        parentId = c.id;
+        replying.hidden = false;
+        replying.textContent = '正在回复 ' + c.nickname + '（点这里取消）';
+        contentInput.focus();
+      });
+      wrap.appendChild(btn);
+    }
+    (c.replies || []).forEach(function (r) { wrap.appendChild(renderComment(r, true)); });
+    return wrap;
+  }
+
+  function load() {
+    list.innerHTML = '';
+    list.appendChild(el('p', 'meta', '评论加载中……'));
+    var url = api + '?select=id,parent_id,nickname,content,created_at'
+      + '&page=eq.' + encodeURIComponent(page)
+      + '&approved=eq.true&order=created_at.asc';
+    fetch(url, { headers: { 'apikey': key, 'Authorization': 'Bearer ' + key } })
+      .then(function (r) { return r.json(); })
+      .then(function (rows) {
+        list.innerHTML = '';
+        rows = rows || [];
+        var tops = [];
+        var byId = {};
+        rows.forEach(function (r) { r.replies = []; byId[r.id] = r; if (!r.parent_id) tops.push(r); });
+        rows.forEach(function (r) { if (r.parent_id && byId[r.parent_id]) byId[r.parent_id].replies.push(r); });
+        if (!tops.length) {
+          list.appendChild(el('p', 'meta', '还没有评论，来当第一个吧。'));
+          return;
+        }
+        tops.forEach(function (c) { list.appendChild(renderComment(c, false)); });
+      })
+      .catch(function () {
+        list.innerHTML = '';
+        list.appendChild(el('p', 'meta', '评论区暂时连不上，稍后再来看看。'));
+      });
+  }
+
+  replying.addEventListener('click', function () {
+    parentId = null;
+    replying.hidden = true;
+    replying.textContent = '';
+  });
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var nickname = nickInput.value.trim();
+    var content = contentInput.value.trim();
+    if (!nickname || !content) return;
+    status.textContent = '发表中……';
+    // 注意：不要加 Prefer: return=representation——新评论 approved=false，
+    // 访客读不到它，PostgREST 回表时会报 42501。默认 return=minimal 即可。
+    fetch(api, {
+      method: 'POST',
+      headers: { 'apikey': key, 'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page: page, nickname: nickname, content: content, parent_id: parentId })
+    })
+      .then(function (r) {
+        if (!r.ok) {
+          status.textContent = '发表失败，换个姿势再试一次。';
+          return;
+        }
+        contentInput.value = '';
+        parentId = null;
+        replying.hidden = true;
+        replying.textContent = '';
+        status.textContent = '收到啦，等小然审核后就会显示出来。';
+        load();
+      })
+      .catch(function () { status.textContent = '网络开小差了，稍后再试。'; });
+  });
+
+  load();
+})();
+</script>

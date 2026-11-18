@@ -70,3 +70,19 @@ nav.prevnext a:hover { box-shadow: 0 4px 12px rgba(34,48,60,.12); }
 .site-footer { color: var(--muted); font-size: 13px; text-align: center; padding: 8px 16px 32px; }
 .site-footer p { margin: 4px 0; }
 @media (max-width: 560px) { .hero { flex-direction: column; text-align: center; } .hero-stats { justify-content: center; } .site-nav a { margin-left: 12px; } }
+.comments-title { margin: 0 0 4px; font-size: 18px; }
+.comments-hint { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+.comment { border-top: 1px solid var(--line); padding: 12px 0; }
+.comment.reply { margin-left: 24px; border-top: 1px dashed var(--line); padding: 10px 0 0; }
+.comment-head { display: flex; gap: 8px; align-items: baseline; }
+.comment-nick { color: var(--blue-deep); }
+.comment-body { margin: 4px 0 6px; white-space: pre-wrap; word-break: break-word; }
+.comment-reply-btn { background: none; border: none; color: var(--blue); cursor: pointer; font-size: 13px; padding: 0; }
+.comments-form { margin-top: 16px; display: grid; gap: 10px; }
+.comments-form input, .comments-form textarea { font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fbfdff; color: var(--ink); width: 100%; }
+.comments-form input:focus, .comments-form textarea:focus { outline: 2px solid rgba(47,127,208,.35); border-color: var(--blue); }
+.comments-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.comments-form button[type="submit"] { background: var(--blue); color: #fff; border: none; border-radius: 999px; padding: 8px 20px; font-size: 14px; cursor: pointer; }
+.comments-form button[type="submit"]:hover { background: var(--blue-deep); }
+.comments-replying { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 13px; padding: 0; text-align: left; }
+.comments-status { margin: 0; }
