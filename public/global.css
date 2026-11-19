@@ -116,3 +116,11 @@ html[data-theme="dark"] .subscribe-form input, html[data-theme="dark"] .subscrib
 html[data-theme="dark"] .audio-block { background: #1d3a55; }
 .audio-label { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--blue-deep); }
 .audio-block audio { width: 100%; display: block; }
+.archive-month-title { margin: 0 0 10px; font-size: 18px; }
+.archive-count { font-size: 13px; color: var(--muted); font-weight: 400; margin-left: 8px; }
+.archive-list { list-style: none; margin: 0; padding: 0; }
+.archive-item { display: flex; gap: 12px; align-items: baseline; padding: 8px 0; border-top: 1px solid var(--line); }
+.archive-item:first-child { border-top: none; }
+.archive-date { font-family: var(--font-mono); font-size: 13px; color: var(--muted); flex: none; }
+.archive-item a { color: var(--ink); text-decoration: none; }
+.archive-item a:hover { color: var(--blue); }
