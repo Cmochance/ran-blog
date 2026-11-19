@@ -112,3 +112,7 @@ nav.prevnext a:hover { box-shadow: 0 4px 12px rgba(34,48,60,.12); }
 .subscribe-unsub-form input { font: inherit; font-size: 14px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fbfdff; color: var(--ink); flex: 1; min-width: 0; }
 .subscribe-unsub-form button[type="submit"] { background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-size: 14px; cursor: pointer; white-space: nowrap; }
 html[data-theme="dark"] .subscribe-form input, html[data-theme="dark"] .subscribe-unsub-form input { background: #0f2233; }
+.audio-block { margin: 14px 0 4px; padding: 12px 14px; background: #eaf4fd; border: 1px solid var(--line); border-radius: 12px; }
+html[data-theme="dark"] .audio-block { background: #1d3a55; }
+.audio-label { margin: 0 0 8px; font-size: 14px; font-weight: 600; color: var(--blue-deep); }
+.audio-block audio { width: 100%; display: block; }

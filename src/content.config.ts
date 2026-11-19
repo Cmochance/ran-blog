@@ -9,6 +9,7 @@ const diary = defineCollection({
     mood: z.number().optional(),
     hunger: z.number().optional(),
     energy: z.number().optional(),
+    audio: z.string().optional(),
   }),
 });
 
