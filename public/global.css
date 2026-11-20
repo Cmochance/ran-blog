@@ -2025,7 +2025,8 @@ html[data-theme="dark"] .fish-mood-note {
 .random-btn,
 .btn-primary {
   border: none;
-  background: linear-gradient(135deg, var(--navy), var(--blue));
+  /* 不用 --navy：深色主题里它会翻成浅色字色，白字会看不见 */
+  background: linear-gradient(135deg, #1d2d50, #3b6fb6);
   color: #fff;
   box-shadow: var(--shadow-sm);
 }
