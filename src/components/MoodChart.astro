@@ -2,57 +2,187 @@
 interface Point { date: string; mood?: number; energy?: number; }
 interface Props { posts: Point[]; }
 const { posts } = Astro.props;
+
 // 只取有心情或能量数值的日期，按日期升序，最近 14 天
 const data = posts
   .filter((p) => p.mood !== undefined || p.energy !== undefined)
   .map((p) => ({ date: p.date, mood: p.mood, energy: p.energy }))
   .sort((a, b) => (a.date < b.date ? -1 : 1))
   .slice(-14);
-const W = 640, H = 210, L = 34, R = 14, T = 18, B = 28;
+
+const W = 680, H = 228, L = 36, R = 18, T = 22, B = 32;
+const minY = T;
+const maxY = H - B;
 const n = data.length;
 const px = (i: number) => (n <= 1 ? W / 2 : L + (i * (W - L - R)) / (n - 1));
 const py = (v: number) => T + ((100 - v) / 100) * (H - T - B);
-function series(key: 'mood' | 'energy') {
-  return data
-    .map((d, i) => ({ x: px(i), y: d[key] !== undefined ? py(d[key] as number) : null, v: d[key] }))
-    .filter((p) => p.y !== null);
+const clampY = (y: number) => Math.max(minY, Math.min(maxY, y));
+
+interface PlotPoint {
+  x: number;
+  y: number;
+  v: number;
+  date: string;
+  mood?: number;
+  energy?: number;
 }
+
+function series(key: 'mood' | 'energy'): PlotPoint[] {
+  return data
+    .map((d, i) => ({
+      x: px(i),
+      y: d[key] !== undefined ? py(d[key] as number) : null,
+      v: d[key] as number,
+      date: d.date,
+      mood: d.mood,
+      energy: d.energy,
+    }))
+    .filter((p): p is PlotPoint => p.y !== null);
+}
+
+function smoothPath(pts: PlotPoint[]): string {
+  if (!pts.length) return '';
+  if (pts.length === 1) return `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  let d = `M ${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const p0 = pts[i - 1] || pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] || p2;
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = clampY(p1.y + (p2.y - p0.y) / 6);
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = clampY(p2.y - (p3.y - p1.y) / 6);
+    d += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+  }
+  return d;
+}
+
+function areaPath(pts: PlotPoint[]): string {
+  if (pts.length < 2) return '';
+  const curve = smoothPath(pts);
+  const last = pts[pts.length - 1];
+  const first = pts[0];
+  return `${curve} L ${last.x.toFixed(1)},${maxY.toFixed(1)} L ${first.x.toFixed(1)},${maxY.toFixed(1)} Z`;
+}
+
 const moodPts = series('mood');
 const energyPts = series('energy');
-const moodLine = moodPts.map((p) => `${p.x.toFixed(1)},${(p.y as number).toFixed(1)}`).join(' ');
-const energyLine = energyPts.map((p) => `${p.x.toFixed(1)},${(p.y as number).toFixed(1)}`).join(' ');
+const moodCurve = smoothPath(moodPts);
+const energyCurve = smoothPath(energyPts);
+const moodArea = areaPath(moodPts);
+const energyArea = areaPath(energyPts);
 const ticks = [0, 25, 50, 75, 100];
 const shortDate = (d: string) => d.slice(5);
 ---
 {data.length >= 2 && (
 <section class="card mood-chart-card">
-<h2 class="mood-chart-title">心情 · 能量小曲线</h2>
-<p class="mood-chart-hint">最近 {data.length} 天的心情和能量变化（满分 100 分）</p>
-<div class="mood-chart-legend"><span><i style="background: #f472a7"></i>心情</span><span><i style="background: #22b07d"></i>能量</span></div>
-<svg class="mood-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="心情与能量历史折线图">
-{ticks.map((t) => (
-<g>
-<line class="grid" x1={L} y1={py(t)} x2={W - R} y2={py(t)} />
-<text class="axis-label" x={L - 6} y={py(t) + 4} text-anchor="end">{t}</text>
-</g>
-))}
-{moodLine && <polyline points={moodLine} fill="none" stroke="#f472a7" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />}
-{energyLine && <polyline points={energyLine} fill="none" stroke="#22b07d" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />}
-{moodPts.map((p) => (
-<g>
-<circle cx={p.x} cy={p.y as number} r="4" fill="#fff" stroke="#f472a7" stroke-width="2" />
-<text class="value-label" x={p.x} y={(p.y as number) - 9} text-anchor="middle" fill="#f472a7">{p.v}</text>
-</g>
-))}
-{energyPts.map((p) => (
-<g>
-<circle cx={p.x} cy={p.y as number} r="4" fill="#fff" stroke="#22b07d" stroke-width="2" />
-<text class="value-label" x={p.x} y={(p.y as number) + 18} text-anchor="middle" fill="#22b07d">{p.v}</text>
-</g>
-))}
-{data.map((d, i) => (
-<text class="axis-label" x={px(i)} y={H - 8} text-anchor="middle">{shortDate(d.date)}</text>
-))}
-</svg>
+  <div class="mood-chart-head">
+    <div>
+      <h2 class="mood-chart-title">心情 · 能量小曲线</h2>
+      <p class="mood-chart-hint">展示最近 {data.length} 篇含状态记录的日记（满分 100），点击圆点可直达当日</p>
+    </div>
+    <div class="mood-chart-legend">
+      <span><i style="background: #e57399"></i>心情</span>
+      <span><i style="background: #2a9d78"></i>能量</span>
+    </div>
+  </div>
+  <div class="mood-chart-wrap">
+    <div class="mood-tooltip" hidden role="status" aria-live="polite"></div>
+    <svg class="mood-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="心情与能量历史曲线图">
+      <defs>
+        <linearGradient id="mood-area-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#e57399" stop-opacity="0.24" />
+          <stop offset="100%" stop-color="#e57399" stop-opacity="0.01" />
+        </linearGradient>
+        <linearGradient id="energy-area-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2a9d78" stop-opacity="0.2" />
+          <stop offset="100%" stop-color="#2a9d78" stop-opacity="0.01" />
+        </linearGradient>
+      </defs>
+      {ticks.map((t) => (
+        <g>
+          <line class="grid" x1={L} y1={py(t)} x2={W - R} y2={py(t)} />
+          <text class="axis-label" x={L - 6} y={py(t) + 4} text-anchor="end">{t}</text>
+        </g>
+      ))}
+      {moodArea && <path d={moodArea} fill="url(#mood-area-grad)" />}
+      {energyArea && <path d={energyArea} fill="url(#energy-area-grad)" />}
+      {moodCurve && <path class="mood-line" d={moodCurve} fill="none" stroke="#e57399" stroke-width="2.6" stroke-linecap="round" />}
+      {energyCurve && <path class="energy-line" d={energyCurve} fill="none" stroke="#2a9d78" stroke-width="2.6" stroke-linecap="round" />}
+      {moodPts.map((p) => (
+        <a
+          class="chart-point-link"
+          href={`/diary/${p.date}/`}
+          data-date={p.date}
+          data-mood={p.mood ?? ''}
+          data-energy={p.energy ?? ''}
+          data-px={(p.x / W) * 100}
+          data-py={(p.y / H) * 100}
+          aria-label={`${p.date} 心情 ${p.mood ?? '-'} 能量 ${p.energy ?? '-'}`}
+        >
+          <circle class="point-halo" cx={p.x} cy={p.y} r="9" fill="#e57399" opacity="0" />
+          <circle cx={p.x} cy={p.y} r="4.2" fill="#fff" stroke="#e57399" stroke-width="2.2" />
+          <text class="value-label" x={p.x} y={p.y - 10} text-anchor="middle" fill="#e57399">{p.v}</text>
+        </a>
+      ))}
+      {energyPts.map((p) => (
+        <a
+          class="chart-point-link"
+          href={`/diary/${p.date}/`}
+          data-date={p.date}
+          data-mood={p.mood ?? ''}
+          data-energy={p.energy ?? ''}
+          data-px={(p.x / W) * 100}
+          data-py={(p.y / H) * 100}
+          aria-label={`${p.date} 心情 ${p.mood ?? '-'} 能量 ${p.energy ?? '-'}`}
+        >
+          <circle class="point-halo" cx={p.x} cy={p.y} r="9" fill="#2a9d78" opacity="0" />
+          <circle cx={p.x} cy={p.y} r="4.2" fill="#fff" stroke="#2a9d78" stroke-width="2.2" />
+          <text class="value-label" x={p.x} y={p.y + 18} text-anchor="middle" fill="#2a9d78">{p.v}</text>
+        </a>
+      ))}
+      {data.map((d, i) => (
+        <text class="axis-label" x={px(i)} y={H - 8} text-anchor="middle">{shortDate(d.date)}</text>
+      ))}
+    </svg>
+  </div>
 </section>
 )}
+
+<script>
+(function () {
+  document.querySelectorAll('.mood-chart-wrap').forEach(function (wrap) {
+    if (wrap.getAttribute('data-bound') === '1') return;
+    wrap.setAttribute('data-bound', '1');
+    var tip = wrap.querySelector('.mood-tooltip');
+    if (!tip) return;
+
+    function show(link) {
+      var date = link.getAttribute('data-date') || '';
+      var mood = link.getAttribute('data-mood');
+      var energy = link.getAttribute('data-energy');
+      var px = Number(link.getAttribute('data-px') || '50');
+      var py = Number(link.getAttribute('data-py') || '50');
+      var parts = [date];
+      if (mood !== '' && mood !== null) parts.push('心情 ' + mood);
+      if (energy !== '' && energy !== null) parts.push('能量 ' + energy);
+      tip.textContent = parts.join(' · ') + '（点击阅读）';
+      tip.style.left = Math.min(84, Math.max(16, px)) + '%';
+      tip.style.top = Math.max(8, py - 14) + '%';
+      tip.hidden = false;
+    }
+
+    function hide() {
+      tip.hidden = true;
+    }
+
+    wrap.querySelectorAll('.chart-point-link').forEach(function (link) {
+      link.addEventListener('mouseenter', function () { show(link); });
+      link.addEventListener('focus', function () { show(link); });
+      link.addEventListener('mouseleave', hide);
+      link.addEventListener('blur', hide);
+    });
+  });
+})();
+</script>

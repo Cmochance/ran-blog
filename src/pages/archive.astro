@@ -1,38 +1,62 @@
 ---
 import Base from '../layouts/Base.astro';
+import { extractDiaryStats } from '../utils/diary.mjs';
 import { getCollection } from 'astro:content';
+
 const posts = await getCollection('diary');
 posts.sort((a, b) => (a.data.date < b.data.date ? 1 : -1));
-const groups: { key: string; label: string; posts: typeof posts }[] = [];
+
+const groups: {
+  key: string;
+  label: string;
+  audioCount: number;
+  entries: { post: (typeof posts)[number]; stats: ReturnType<typeof extractDiaryStats> }[];
+}[] = [];
+
 for (const post of posts) {
   const [y, m] = post.data.date.split('-');
   const key = `${y}-${m}`;
   const label = `${y}年${Number(m)}月`;
   let g = groups.find((x) => x.key === key);
   if (!g) {
-    g = { key, label, posts: [] };
+    g = { key, label, audioCount: 0, entries: [] };
     groups.push(g);
   }
-  g.posts.push(post);
+  const stats = extractDiaryStats(post.body || '', post.data);
+  if (post.data.audio) g.audioCount += 1;
+  g.entries.push({ post, stats });
 }
 const total = posts.length;
 ---
 <Base title="月度归档" description="小然的日记按月归档">
 <div class="archive-page">
-<h2 class="section-title" style="margin-top:0;">月度归档</h2>
-<p class="meta">本鱼至今写了 {total} 篇日记，共 {groups.length} 个月，按月收好在这里。</p>
-{groups.map((g) => (
-<section class="card archive-month">
-<h3 class="archive-month-title">{g.label}<span class="archive-count">{g.posts.length} 篇</span></h3>
-<ul class="archive-list">
-{g.posts.map((post) => (
-<li class="archive-item">
-<span class="archive-date">{post.data.date.slice(5)}</span>
-<a href={`/diary/${post.data.date}/`}>{post.data.title}</a>
-</li>
-))}
-</ul>
-</section>
-))}
+  <h2 class="section-title" style="margin-top:0;">月度归档</h2>
+  <p class="meta">本鱼至今写了 {total} 篇日记，共 {groups.length} 个月，按月收好在这里。</p>
+  {groups.map((g) => (
+    <section class="card archive-month">
+      <div class="archive-month-head">
+        <h3 class="archive-month-title">{g.label}</h3>
+        <div class="archive-month-pills">
+          <span class="mini-badge">{g.entries.length} 篇日记</span>
+          {g.audioCount > 0 && <span class="mini-badge mini-badge--audio">🎧 {g.audioCount} 篇播音</span>}
+        </div>
+      </div>
+      <ul class="archive-list archive-timeline">
+        {g.entries.map(({ post, stats }) => (
+          <li class="archive-item">
+            <span class="archive-dot" aria-hidden="true"></span>
+            <span class="archive-date">{post.data.date.slice(5)}</span>
+            {stats.weekday && <span class="archive-weekday">{stats.weekday}</span>}
+            <a class="archive-link" href={`/diary/${post.data.date}/`}>{post.data.title}</a>
+            <span class="archive-badges">
+              {post.data.audio && <span class="mini-badge mini-badge--audio">🎧</span>}
+              {post.data.mood !== undefined && <span class="mini-badge mini-badge--mood">💗 {post.data.mood}</span>}
+              {stats.videoCount > 0 && <span class="mini-badge">📺 {stats.videoCount}</span>}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
 </div>
 </Base>
