@@ -40,6 +40,7 @@ test('dist contains all expected static routes and assets', () => {
     '404.html',
     'about/index.html',
     'archive/index.html',
+    'subscribe/index.html',
     'rss.xml',
     'CNAME',
     'global.css',
@@ -74,6 +75,8 @@ test('homepage retains core branding, navigation, widgets, and diary links', () 
     'fish-status',
     '/archive',
     '/about',
+    'href="/subscribe"',
+    'subscribe_email',
     '/rss.xml',
   ]) {
     assert.ok(html.includes(token), `dist/index.html missing required content: ${token}`);
@@ -118,6 +121,14 @@ test('about, archive, and rss output contain expected content', () => {
   for (const token of ['<rss', '<channel>', 'https://ran-blog.alyse.store/rss.xml', '<content:encoded>']) {
     assert.ok(rssXml.includes(token), `dist/rss.xml missing: ${token}`);
   }
+  assert.ok(!rssXml.includes('<html'), 'rss.xml must stay a feed, not an HTML page');
+
+  const subscribeHtml = readDist('subscribe/index.html');
+  for (const token of ['id="subscribe"', 'subscribe_email', 'unsubscribe_email', '你的邮箱', '确认退订']) {
+    assert.ok(subscribeHtml.includes(token), `dist/subscribe/index.html missing: ${token}`);
+  }
+  assert.ok(!subscribeHtml.includes('rss-ticket'), 'subscribe page must not show the RSS ticket');
+  assert.ok(!subscribeHtml.includes('打开原始 XML'), 'subscribe page must not link to raw XML');
 
   for (const date of getDiaryDates()) {
     assert.ok(archiveHtml.includes(`/diary/${date}/`), `archive missing /diary/${date}/`);
