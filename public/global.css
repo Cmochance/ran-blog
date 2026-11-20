@@ -124,3 +124,11 @@ html[data-theme="dark"] .audio-block { background: #1d3a55; }
 .archive-date { font-family: var(--font-mono); font-size: 13px; color: var(--muted); flex: none; }
 .archive-item a { color: var(--ink); text-decoration: none; }
 .archive-item a:hover { color: var(--blue); }
+.mood-chart-title { margin: 0 0 4px; font-size: 18px; }
+.mood-chart-hint { color: var(--muted); font-size: 13px; margin: 0 0 10px; }
+.mood-chart-legend { display: flex; gap: 18px; font-size: 13px; color: var(--muted); margin: 0 0 4px; }
+.mood-chart-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; }
+.mood-chart { width: 100%; height: auto; display: block; }
+.mood-chart .grid { stroke: var(--line); stroke-width: 1; }
+.mood-chart .axis-label { fill: var(--muted); font-size: 11px; }
+.mood-chart .value-label { font-size: 11px; font-weight: 600; }

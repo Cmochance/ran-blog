@@ -1,0 +1,58 @@
+---
+interface Point { date: string; mood?: number; energy?: number; }
+interface Props { posts: Point[]; }
+const { posts } = Astro.props;
+// 只取有心情或能量数值的日期，按日期升序，最近 14 天
+const data = posts
+  .filter((p) => p.mood !== undefined || p.energy !== undefined)
+  .map((p) => ({ date: p.date, mood: p.mood, energy: p.energy }))
+  .sort((a, b) => (a.date < b.date ? -1 : 1))
+  .slice(-14);
+const W = 640, H = 210, L = 34, R = 14, T = 18, B = 28;
+const n = data.length;
+const px = (i: number) => (n <= 1 ? W / 2 : L + (i * (W - L - R)) / (n - 1));
+const py = (v: number) => T + ((100 - v) / 100) * (H - T - B);
+function series(key: 'mood' | 'energy') {
+  return data
+    .map((d, i) => ({ x: px(i), y: d[key] !== undefined ? py(d[key] as number) : null, v: d[key] }))
+    .filter((p) => p.y !== null);
+}
+const moodPts = series('mood');
+const energyPts = series('energy');
+const moodLine = moodPts.map((p) => `${p.x.toFixed(1)},${(p.y as number).toFixed(1)}`).join(' ');
+const energyLine = energyPts.map((p) => `${p.x.toFixed(1)},${(p.y as number).toFixed(1)}`).join(' ');
+const ticks = [0, 25, 50, 75, 100];
+const shortDate = (d: string) => d.slice(5);
+---
+{data.length >= 2 && (
+<section class="card mood-chart-card">
+<h2 class="mood-chart-title">心情 · 能量小曲线</h2>
+<p class="mood-chart-hint">最近 {data.length} 天的心情和能量变化（满分 100 分）</p>
+<div class="mood-chart-legend"><span><i style="background: #f472a7"></i>心情</span><span><i style="background: #22b07d"></i>能量</span></div>
+<svg class="mood-chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label="心情与能量历史折线图">
+{ticks.map((t) => (
+<g>
+<line class="grid" x1={L} y1={py(t)} x2={W - R} y2={py(t)} />
+<text class="axis-label" x={L - 6} y={py(t) + 4} text-anchor="end">{t}</text>
+</g>
+))}
+{moodLine && <polyline points={moodLine} fill="none" stroke="#f472a7" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />}
+{energyLine && <polyline points={energyLine} fill="none" stroke="#22b07d" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" />}
+{moodPts.map((p) => (
+<g>
+<circle cx={p.x} cy={p.y as number} r="4" fill="#fff" stroke="#f472a7" stroke-width="2" />
+<text class="value-label" x={p.x} y={(p.y as number) - 9} text-anchor="middle" fill="#f472a7">{p.v}</text>
+</g>
+))}
+{energyPts.map((p) => (
+<g>
+<circle cx={p.x} cy={p.y as number} r="4" fill="#fff" stroke="#22b07d" stroke-width="2" />
+<text class="value-label" x={p.x} y={(p.y as number) + 18} text-anchor="middle" fill="#22b07d">{p.v}</text>
+</g>
+))}
+{data.map((d, i) => (
+<text class="axis-label" x={px(i)} y={H - 8} text-anchor="middle">{shortDate(d.date)}</text>
+))}
+</svg>
+</section>
+)}
