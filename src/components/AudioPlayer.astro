@@ -1,0 +1,123 @@
+---
+interface Props {
+  src: string;
+  title?: string;
+  compact?: boolean;
+}
+const { src, title = '小然播音', compact = false } = Astro.props;
+---
+<div class={compact ? 'audio-player audio-player--compact' : 'audio-player'}>
+  <audio class="audio-native" controls preload="metadata" src={src}></audio>
+  <div class="audio-ui" hidden>
+    <div class="audio-disc" aria-hidden="true">
+      <img src="/xiaoran.png" alt="" />
+    </div>
+    <button class="audio-play-btn" type="button" aria-label="播放小然播音">
+      <svg class="audio-icon-play" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5z"/></svg>
+      <svg class="audio-icon-pause" viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+    </button>
+    <div class="audio-main">
+      <div class="audio-top">
+        <span class="audio-title">
+          <span>🎧 {title}</span>
+          <span class="audio-eq" aria-hidden="true"><i></i><i></i><i></i></span>
+        </span>
+        <div class="audio-controls-right">
+          <button class="audio-speed" type="button" title="切换播放倍速">1.0x</button>
+          <a class="audio-dl" href={src} download title="下载播音音频" aria-label="下载播音音频">↓ MP3</a>
+        </div>
+      </div>
+      <div class="audio-progress-row">
+        <input class="audio-seek" type="range" min="0" max="100" step="0.1" value="0" aria-label="播音进度" />
+        <span class="audio-time">00:00 / --:--</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  function fmt(sec) {
+    if (!isFinite(sec) || sec < 0) return '--:--';
+    var m = Math.floor(sec / 60);
+    var s = Math.floor(sec % 60);
+    return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+  }
+
+  function initPlayers() {
+    document.querySelectorAll('.audio-player').forEach(function (root) {
+      if (root.getAttribute('data-bound') === '1') return;
+      root.setAttribute('data-bound', '1');
+
+      var audio = root.querySelector('.audio-native');
+      var ui = root.querySelector('.audio-ui');
+      var playBtn = root.querySelector('.audio-play-btn');
+      var seek = root.querySelector('.audio-seek');
+      var timeEl = root.querySelector('.audio-time');
+      var speedBtn = root.querySelector('.audio-speed');
+      if (!audio || !ui || !playBtn || !seek || !timeEl || !speedBtn) return;
+
+      ui.hidden = false;
+      root.classList.add('is-enhanced');
+
+      var speeds = [1, 1.25, 1.5, 0.85];
+      var speedIdx = 0;
+
+      function updateTime() {
+        var cur = audio.currentTime || 0;
+        var dur = audio.duration;
+        var pct = dur && isFinite(dur) && dur > 0 ? (cur / dur) * 100 : 0;
+        seek.value = String(pct);
+        seek.style.setProperty('--progress', pct.toFixed(2) + '%');
+        timeEl.textContent = fmt(cur) + ' / ' + (dur && isFinite(dur) ? fmt(dur) : '--:--');
+      }
+
+      function syncState() {
+        var playing = !audio.paused && !audio.ended;
+        root.classList.toggle('is-playing', playing);
+        playBtn.setAttribute('aria-label', playing ? '暂停播音' : '播放小然播音');
+      }
+
+      playBtn.addEventListener('click', function () {
+        if (audio.paused) {
+          document.querySelectorAll('.audio-native').forEach(function (other) {
+            if (other !== audio && !other.paused) other.pause();
+          });
+          audio.play().catch(function () {});
+        } else {
+          audio.pause();
+        }
+      });
+
+      seek.addEventListener('input', function () {
+        if (audio.duration && isFinite(audio.duration)) {
+          audio.currentTime = (Number(seek.value) / 100) * audio.duration;
+          updateTime();
+        }
+      });
+
+      speedBtn.addEventListener('click', function () {
+        speedIdx = (speedIdx + 1) % speeds.length;
+        var rate = speeds[speedIdx];
+        audio.playbackRate = rate;
+        speedBtn.textContent = rate.toFixed(rate === 1 || rate === 1.5 ? 1 : 2) + 'x';
+      });
+
+      audio.addEventListener('loadedmetadata', updateTime);
+      audio.addEventListener('durationchange', updateTime);
+      audio.addEventListener('timeupdate', updateTime);
+      audio.addEventListener('play', syncState);
+      audio.addEventListener('pause', syncState);
+      audio.addEventListener('ended', syncState);
+      updateTime();
+      syncState();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPlayers);
+  } else {
+    initPlayers();
+  }
+})();
+</script>

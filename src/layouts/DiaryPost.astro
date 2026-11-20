@@ -1,31 +1,204 @@
 ---
 import Base from './Base.astro';
+import AudioPlayer from '../components/AudioPlayer.astro';
 import Comments from '../components/Comments.astro';
 import Meters from '../components/Meters.astro';
 import Subscribe from '../components/Subscribe.astro';
+import { classifyHeading, extractDiaryStats } from '../utils/diary.mjs';
 import type { CollectionEntry } from 'astro:content';
-interface Props { post: CollectionEntry<'diary'>; prev?: { date: string; title: string } | null; next?: { date: string; title: string } | null; }
-const { post, prev, next } = Astro.props;
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  post: CollectionEntry<'diary'>;
+  prev?: { date: string; title: string } | null;
+  next?: { date: string; title: string } | null;
+  headings?: Heading[];
+}
+
+const { post, prev, next, headings = [] } = Astro.props;
 const { date, title, mood, hunger, energy, audio } = post.data;
+const stats = extractDiaryStats(post.body || '', post.data);
+const tocHeadings = headings
+  .filter((h) => h.depth === 2)
+  .map((h) => ({ ...h, kind: classifyHeading(h.text) }));
 ---
 <Base title={title}>
+<div id="reading-progress" class="reading-progress" role="progressbar" aria-label="阅读进度" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></div>
 <p class="backlink"><a href="/">← 回到全部日记</a></p>
-<article class="card">
-<p class="meta">{date}</p>
-<h2 class="post-title">{title}</h2>
-{audio ? (
-<section class="audio-block">
-<p class="audio-label">🎧 小然播音</p>
-<audio controls preload="metadata" src={audio}></audio>
-</section>
-) : null}
-<Meters mood={mood} hunger={hunger} energy={energy} />
-<slot />
+
+<article class="card diary-article">
+  <div class="post-meta-bar">
+    <span class="meta-chip meta-chip--date">{date}{stats.weekday ? ` · ${stats.weekday}` : ''}</span>
+    <span class="meta-chip">约 {stats.readingMinutes} 分钟读完</span>
+    {stats.patrolCount > 0 && <span class="meta-chip">{stats.patrolCount} 轮巡游</span>}
+    {stats.videoCount > 0 && <span class="meta-chip">📺 {stats.videoCount} 条视频</span>}
+    {stats.hasBounty && <span class="meta-chip meta-chip--gold">🏆 赏金动态</span>}
+  </div>
+  <h2 class="post-title">{title}</h2>
+  {audio ? <AudioPlayer src={audio} title="小然播音" /> : null}
+  <Meters mood={mood} hunger={hunger} energy={energy} />
+
+  {tocHeadings.length >= 3 && (
+    <details class="toc-card" open>
+      <summary class="toc-summary">
+        <span>今日行程一览</span>
+        <span class="toc-count">{tocHeadings.length} 个小节</span>
+      </summary>
+      <nav class="toc-list" aria-label="日记小节目录">
+        {tocHeadings.map((h) => (
+          <a class="toc-chip" data-kind={h.kind} href={`#${h.slug}`}>{h.text}</a>
+        ))}
+      </nav>
+    </details>
+  )}
+
+  <div class="prose">
+    <slot />
+  </div>
 </article>
+
 <Subscribe />
+
 <nav class="prevnext">
-{prev ? <a href={`/diary/${prev.date}/`}>← 前一篇<br />{prev.title}</a> : <span />}
-{next ? <a href={`/diary/${next.date}/`}>下一篇 →<br />{next.title}</a> : <span />}
+  {prev ? (
+    <a href={`/diary/${prev.date}/`}>
+      <span class="prevnext-dir">← 前一篇</span>
+      <span class="prevnext-date">{prev.date}</span>
+      <strong class="prevnext-title">{prev.title}</strong>
+    </a>
+  ) : <span />}
+  {next ? (
+    <a href={`/diary/${next.date}/`}>
+      <span class="prevnext-dir">下一篇 →</span>
+      <span class="prevnext-date">{next.date}</span>
+      <strong class="prevnext-title">{next.title}</strong>
+    </a>
+  ) : <span />}
 </nav>
+
 <Comments page={date} />
+
+<button id="back-to-top" class="back-to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>
+
+<script>
+(function () {
+  function classify(text) {
+    var s = (text || '').trim();
+    if (/make\.fun|赏金|封面赛/i.test(s)) return 'bounty';
+    if (/当日小结|小结/.test(s)) return 'summary';
+    if (/^心情/.test(s)) return 'mood';
+    if (/巡游|^\d{1,2}:\d{2}/.test(s)) return 'patrol';
+    return 'other';
+  }
+
+  function enhanceProse() {
+    var prose = document.querySelector('.diary-article .prose');
+    if (!prose || prose.getAttribute('data-enhanced') === '1') return;
+    prose.setAttribute('data-enhanced', '1');
+
+    prose.querySelectorAll('h2').forEach(function (h2) {
+      h2.setAttribute('data-kind', classify(h2.textContent));
+    });
+
+    prose.querySelectorAll('a[href]').forEach(function (a) {
+      var href = a.getAttribute('href') || '';
+      if (/^https?:\/\//i.test(href)) {
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener noreferrer');
+      }
+      if (/bilibili\.com\/video\/BV[0-9A-Za-z]+/i.test(href) && !a.classList.contains('bili-pill')) {
+        a.classList.add('bili-pill');
+        var icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        icon.setAttribute('viewBox', '0 0 16 16');
+        icon.setAttribute('width', '12');
+        icon.setAttribute('height', '12');
+        icon.setAttribute('aria-hidden', 'true');
+        icon.setAttribute('fill', 'currentColor');
+        var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M4.5 3.2v9.6L13 8 4.5 3.2z');
+        icon.appendChild(path);
+        a.insertBefore(icon, a.firstChild);
+      }
+    });
+
+    prose.querySelectorAll('li').forEach(function (li) {
+      var raw = (li.textContent || '').trim();
+      var m = raw.match(/^鱼的心情一句话[：:]\s*(.+)$/);
+      if (!m) return;
+      if (li.querySelector('ul, ol')) return;
+      li.classList.add('fish-mood-li');
+      var box = document.createElement('div');
+      box.className = 'fish-mood-note';
+      var avatar = document.createElement('img');
+      avatar.className = 'fish-mood-avatar';
+      avatar.src = '/xiaoran.png';
+      avatar.alt = '小然';
+      var content = document.createElement('div');
+      content.className = 'fish-mood-content';
+      var label = document.createElement('span');
+      label.className = 'fish-mood-label signature-hand';
+      label.textContent = '小然碎碎念';
+      var p = document.createElement('p');
+      p.className = 'fish-mood-text';
+      p.textContent = m[1];
+      content.appendChild(label);
+      content.appendChild(p);
+      box.appendChild(avatar);
+      box.appendChild(content);
+      li.textContent = '';
+      li.appendChild(box);
+    });
+  }
+
+  function setupScrollWidgets() {
+    var bar = document.getElementById('reading-progress');
+    var topBtn = document.getElementById('back-to-top');
+    var ticking = false;
+
+    function update() {
+      ticking = false;
+      var scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = docHeight > 0 ? Math.min(100, Math.max(0, (scrollTop / docHeight) * 100)) : 0;
+      if (bar) {
+        bar.style.width = pct.toFixed(1) + '%';
+        bar.setAttribute('aria-valuenow', String(Math.round(pct)));
+      }
+      if (topBtn) {
+        topBtn.hidden = scrollTop <= 400;
+      }
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        ticking = true;
+        window.requestAnimationFrame(update);
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    if (topBtn) {
+      topBtn.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+    update();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () {
+      enhanceProse();
+      setupScrollWidgets();
+    });
+  } else {
+    enhanceProse();
+    setupScrollWidgets();
+  }
+})();
+</script>
 </Base>
