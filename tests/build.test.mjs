@@ -64,6 +64,9 @@ test('homepage retains core branding, navigation, widgets, and diary links', () 
     'id="subscribe"',
     'jkcnrgqdiwiggiznbwfu.supabase.co/rest/v1/rpc',
     'mood-chart',
+    'nav-bar',
+    'wave-back',
+    'footer-whale',
     '/archive',
     '/about',
     '/rss.xml',
@@ -93,6 +96,8 @@ test('diary post page retains audio, comments, subscribe, and prev/next nav', ()
 test('about, archive, and rss output contain expected content', () => {
   const aboutHtml = readDist('about/index.html');
   assert.ok(aboutHtml.includes('/xiaoran-full.png'), 'about page must reference /xiaoran-full.png');
+  assert.ok(aboutHtml.includes('about-sheet'), 'about page must use Character Sheet layout');
+  assert.ok(aboutHtml.includes('schedule-strip'), 'about page must include patrol schedule strip');
 
   const archiveHtml = readDist('archive/index.html');
   const rssXml = readDist('rss.xml');
