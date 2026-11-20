@@ -35,11 +35,25 @@ const PUBKEY = 'sb_publishable_1DrGNs63kMbvY-TixhCd_w_yfw8nPQw';
   var replying = root.querySelector('.comments-replying');
   var parentId = null;
 
+  var AVATAR_PALETTE = [
+    ['#e6effb', '#2b4c8c'],
+    ['#fdf0f5', '#b94872'],
+    ['#fbf5e9', '#946d30'],
+    ['#e7f6f0', '#217a5d'],
+    ['#eef0fb', '#44559c']
+  ];
+
   function el(tag, cls, text) {
     var n = document.createElement(tag);
     if (cls) n.className = cls;
     if (text !== undefined && text !== null) n.textContent = text;
     return n;
+  }
+
+  function avatarColors(name) {
+    var sum = 0;
+    for (var i = 0; i < name.length; i++) sum += name.charCodeAt(i);
+    return AVATAR_PALETTE[sum % AVATAR_PALETTE.length];
   }
 
   function fmtTime(s) {
@@ -49,16 +63,42 @@ const PUBKEY = 'sb_publishable_1DrGNs63kMbvY-TixhCd_w_yfw8nPQw';
     return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + ' ' + p(d.getHours()) + ':' + p(d.getMinutes());
   }
 
-  function renderComment(c, isReply) {
-    var wrap = el('div', isReply ? 'comment reply' : 'comment');
+  function renderComment(c, depth, parentNick) {
+    var isReply = depth > 0;
+    var isXiaoran = c.nickname === '小然';
+    var cls = isReply ? 'comment reply' : 'comment';
+    if (isXiaoran) cls += ' comment--xiaoran';
+    var wrap = el('div', cls);
+    if (isReply) wrap.setAttribute('data-depth', String(Math.min(depth, 3)));
+
+    var row = el('div', 'comment-row');
+    if (isXiaoran) {
+      var img = document.createElement('img');
+      img.className = 'comment-avatar comment-avatar--xiaoran';
+      img.src = '/xiaoran.png';
+      img.alt = '小然';
+      row.appendChild(img);
+    } else {
+      var initial = ((c.nickname || '?').trim().charAt(0) || '?').toUpperCase();
+      var colors = avatarColors(c.nickname || '');
+      var av = el('span', 'comment-avatar', initial);
+      av.style.background = colors[0];
+      av.style.color = colors[1];
+      av.setAttribute('aria-hidden', 'true');
+      row.appendChild(av);
+    }
+
+    var main = el('div', 'comment-main');
     var head = el('div', 'comment-head');
-    var nick = el('b', 'comment-nick', c.nickname);
-    if (c.nickname === '小然') nick.className = 'comment-nick comment-nick--xiaoran';
+    var nick = el('b', isXiaoran ? 'comment-nick comment-nick--xiaoran' : 'comment-nick', c.nickname);
     head.appendChild(nick);
-    head.appendChild(el('span', 'meta', ' ' + fmtTime(c.created_at)));
-    wrap.appendChild(head);
+    if (isXiaoran) head.appendChild(el('span', 'comment-badge-fish', '本鱼'));
+    if (isReply && parentNick) head.appendChild(el('span', 'comment-reply-to', '回复 @' + parentNick));
+    head.appendChild(el('span', 'meta', fmtTime(c.created_at)));
+    main.appendChild(head);
+
     var body = el('p', 'comment-body', c.content);
-    wrap.appendChild(body);
+    main.appendChild(body);
     // 长内容自动折叠（超过 200 字只显示前 4 行，点展开看全文）
     if (c.content && c.content.length > 200) {
       body.classList.add('clamped');
@@ -68,7 +108,7 @@ const PUBKEY = 'sb_publishable_1DrGNs63kMbvY-TixhCd_w_yfw8nPQw';
         var collapsed = body.classList.toggle('clamped');
         toggle.textContent = collapsed ? '展开全文' : '收起';
       });
-      wrap.appendChild(toggle);
+      main.appendChild(toggle);
     }
     // 每条评论都能被回复（包括小然的回复），对话可以一直延续
     var btn = el('button', 'comment-reply-btn', '回复');
@@ -79,8 +119,13 @@ const PUBKEY = 'sb_publishable_1DrGNs63kMbvY-TixhCd_w_yfw8nPQw';
       replying.textContent = '正在回复 ' + c.nickname + '（点这里取消）';
       contentInput.focus();
     });
-    wrap.appendChild(btn);
-    (c.replies || []).forEach(function (r) { wrap.appendChild(renderComment(r, true)); });
+    main.appendChild(btn);
+
+    row.appendChild(main);
+    wrap.appendChild(row);
+    (c.replies || []).forEach(function (r) {
+      wrap.appendChild(renderComment(r, depth + 1, c.nickname));
+    });
     return wrap;
   }
 
@@ -103,7 +148,7 @@ const PUBKEY = 'sb_publishable_1DrGNs63kMbvY-TixhCd_w_yfw8nPQw';
           list.appendChild(el('p', 'meta', '还没有评论，来当第一个吧。'));
           return;
         }
-        tops.forEach(function (c) { list.appendChild(renderComment(c, false)); });
+        tops.forEach(function (c) { list.appendChild(renderComment(c, 0, '')); });
       })
       .catch(function () {
         list.innerHTML = '';

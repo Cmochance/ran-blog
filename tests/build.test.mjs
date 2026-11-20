@@ -37,6 +37,7 @@ test('dist contains all expected static routes and assets', () => {
 
   const requiredFiles = [
     'index.html',
+    '404.html',
     'about/index.html',
     'archive/index.html',
     'rss.xml',
@@ -64,9 +65,13 @@ test('homepage retains core branding, navigation, widgets, and diary links', () 
     'id="subscribe"',
     'jkcnrgqdiwiggiznbwfu.supabase.co/rest/v1/rpc',
     'mood-chart',
+    'mood-tooltip',
     'nav-bar',
     'wave-back',
     'footer-whale',
+    'filter-bar',
+    'id="random-post-btn"',
+    'fish-status',
     '/archive',
     '/about',
     '/rss.xml',
@@ -104,6 +109,11 @@ test('about, archive, and rss output contain expected content', () => {
   assert.ok(aboutHtml.includes('schedule-strip'), 'about page must include patrol schedule strip');
 
   const archiveHtml = readDist('archive/index.html');
+  assert.ok(archiveHtml.includes('archive-timeline'), 'archive page must include timeline');
+
+  const notFoundHtml = readDist('404.html');
+  assert.ok(notFoundHtml.includes('404') && notFoundHtml.includes('href="/"'), '404 page must render 404 and link home');
+
   const rssXml = readDist('rss.xml');
   for (const token of ['<rss', '<channel>', 'https://ran-blog.alyse.store/rss.xml', '<content:encoded>']) {
     assert.ok(rssXml.includes(token), `dist/rss.xml missing: ${token}`);
@@ -161,6 +171,7 @@ test('built global.css has balanced braces and dual-theme selectors', () => {
   const css = readDist('global.css');
   assert.ok(css.includes(':root'), 'global.css must define :root variables');
   assert.ok(css.includes('html[data-theme="dark"]'), 'global.css must define dark theme rules');
+  assert.ok(css.includes('@media print'), 'global.css must define print styles');
 
   const stripped = css
     .replace(/\/\*[\s\S]*?\*\//g, '')
