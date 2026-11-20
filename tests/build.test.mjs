@@ -88,6 +88,10 @@ test('diary post page retains audio, comments, subscribe, and prev/next nav', ()
     'jkcnrgqdiwiggiznbwfu.supabase.co/rest/v1/comments',
     'id="subscribe"',
     'prevnext',
+    'reading-progress',
+    'audio-player',
+    'toc-card',
+    'prose',
   ]) {
     assert.ok(html.includes(token), `dist/diary/2026-11-20/index.html missing: ${token}`);
   }
