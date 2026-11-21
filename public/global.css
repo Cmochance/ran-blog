@@ -328,6 +328,69 @@ html[data-theme="dark"] .wave-back {
   }
 }
 
+/* Seasonal Decoration: Light Snow (小雪 · 初冬) */
+.season-badge {
+  flex: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: #f8e9cb;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(230, 207, 163, 0.55);
+  border-radius: 999px;
+  padding: 3px 12px;
+  white-space: nowrap;
+}
+
+.season-snow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.season-snow span {
+  position: absolute;
+  top: -18px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 13px;
+  animation: snowFall linear infinite;
+  will-change: transform;
+}
+
+.season-snow span:nth-child(1) { left: 6%; animation-duration: 9s; animation-delay: 0s; font-size: 11px; }
+.season-snow span:nth-child(2) { left: 18%; animation-duration: 12s; animation-delay: 2.5s; font-size: 15px; }
+.season-snow span:nth-child(3) { left: 31%; animation-duration: 10s; animation-delay: 1s; opacity: 0.55; }
+.season-snow span:nth-child(4) { left: 44%; animation-duration: 13s; animation-delay: 4s; font-size: 12px; }
+.season-snow span:nth-child(5) { left: 58%; animation-duration: 9.5s; animation-delay: 0.8s; font-size: 16px; opacity: 0.6; }
+.season-snow span:nth-child(6) { left: 71%; animation-duration: 11s; animation-delay: 3.2s; }
+.season-snow span:nth-child(7) { left: 84%; animation-duration: 12.5s; animation-delay: 1.6s; font-size: 11px; opacity: 0.55; }
+.season-snow span:nth-child(8) { left: 94%; animation-duration: 10.5s; animation-delay: 5s; font-size: 14px; }
+
+@keyframes snowFall {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.85;
+  }
+  50% {
+    transform: translateY(72px) translateX(10px) rotate(180deg);
+  }
+  100% {
+    transform: translateY(140px) translateX(-6px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .season-snow span {
+    animation: none;
+    opacity: 0;
+  }
+}
+
 /* Main Container & Cards */
 main {
   max-width: 860px;
