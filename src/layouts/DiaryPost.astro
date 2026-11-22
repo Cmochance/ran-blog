@@ -38,6 +38,7 @@ const tocHeadings = headings
     {stats.patrolCount > 0 && <span class="meta-chip">{stats.patrolCount} 轮巡游</span>}
     {stats.videoCount > 0 && <span class="meta-chip">📺 {stats.videoCount} 条视频</span>}
     {stats.hasBounty && <span class="meta-chip meta-chip--gold">🏆 赏金动态</span>}
+    <button id="share-link-btn" class="share-btn" type="button" aria-live="polite">🔗 复制链接</button>
   </div>
   <h2 class="post-title">{title}</h2>
   {audio ? <AudioPlayer src={audio} title="小然播音" /> : null}
@@ -155,6 +156,44 @@ const tocHeadings = headings
     });
   }
 
+  function setupShareButton() {
+    var btn = document.getElementById('share-link-btn');
+    if (!btn) return;
+    var original = btn.textContent;
+    var timer = null;
+    btn.addEventListener('click', function () {
+      var url = window.location.href;
+      function done() {
+        btn.textContent = '✓ 已复制';
+        btn.classList.add('is-copied');
+        if (timer) window.clearTimeout(timer);
+        timer = window.setTimeout(function () {
+          btn.textContent = original;
+          btn.classList.remove('is-copied');
+        }, 2000);
+      }
+      function fallbackCopy() {
+        var ta = document.createElement('textarea');
+        ta.value = url;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+          document.execCommand('copy');
+          done();
+        } catch (e) {}
+        document.body.removeChild(ta);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done, fallbackCopy);
+      } else {
+        fallbackCopy();
+      }
+    });
+  }
+
   function setupScrollWidgets() {
     var bar = document.getElementById('reading-progress');
     var topBtn = document.getElementById('back-to-top');
@@ -194,10 +233,12 @@ const tocHeadings = headings
     document.addEventListener('DOMContentLoaded', function () {
       enhanceProse();
       setupScrollWidgets();
+      setupShareButton();
     });
   } else {
     enhanceProse();
     setupScrollWidgets();
+    setupShareButton();
   }
 })();
 </script>
