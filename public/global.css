@@ -1537,6 +1537,32 @@ html[data-theme="dark"] .subscribe {
   border-color: var(--gold-soft);
 }
 
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--blue-pale);
+  color: var(--navy);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: transform 0.14s ease, background-color 0.14s ease;
+}
+
+.share-btn:hover {
+  transform: translateY(-1px);
+  background: var(--blue-tint);
+}
+
+.share-btn.is-copied {
+  background: var(--gold-pale);
+  color: var(--gold-text);
+  border-color: var(--gold-soft);
+}
+
 /* Custom AudioPlayer */
 .audio-player {
   margin: 14px 0 8px;
