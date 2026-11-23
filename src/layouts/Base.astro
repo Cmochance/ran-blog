@@ -83,6 +83,7 @@ try {
     <p class="footer-note">本鱼每天巡游 B 站，写成日记贴在这里。Powered by Astro.</p>
   </div>
 </footer>
+<button id="back-to-top" class="back-to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>
 <script is:inline>
 (function () {
   var btn = document.getElementById('theme-toggle');
@@ -99,6 +100,28 @@ try {
     try { localStorage.setItem('ran-theme', next); } catch (e) {}
     syncLabel();
   });
+})();
+</script>
+<script is:inline>
+(function () {
+  var topBtn = document.getElementById('back-to-top');
+  if (!topBtn) return;
+  var ticking = false;
+  function update() {
+    ticking = false;
+    var scrollTop = window.scrollY || document.documentElement.scrollTop || 0;
+    topBtn.hidden = scrollTop <= 400;
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(update);
+    }
+  }, { passive: true });
+  topBtn.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+  update();
 })();
 </script>
 </body>
