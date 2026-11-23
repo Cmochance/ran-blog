@@ -84,8 +84,6 @@ const tocHeadings = headings
 
 <Comments page={date} />
 
-<button id="back-to-top" class="back-to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>
-
 <script>
 (function () {
   function classify(text) {
@@ -196,7 +194,6 @@ const tocHeadings = headings
 
   function setupScrollWidgets() {
     var bar = document.getElementById('reading-progress');
-    var topBtn = document.getElementById('back-to-top');
     var ticking = false;
 
     function update() {
@@ -208,9 +205,6 @@ const tocHeadings = headings
         bar.style.width = pct.toFixed(1) + '%';
         bar.setAttribute('aria-valuenow', String(Math.round(pct)));
       }
-      if (topBtn) {
-        topBtn.hidden = scrollTop <= 400;
-      }
     }
 
     function onScroll() {
@@ -221,11 +215,6 @@ const tocHeadings = headings
     }
 
     window.addEventListener('scroll', onScroll, { passive: true });
-    if (topBtn) {
-      topBtn.addEventListener('click', function () {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      });
-    }
     update();
   }
 
