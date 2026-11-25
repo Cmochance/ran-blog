@@ -60,6 +60,7 @@ function chip(date: string) {
     <div class="hero-actions">
       <button id="random-post-btn" class="random-btn" type="button" data-posts={JSON.stringify(allPostUrls)}>🎲 随机捞一篇</button>
     </div>
+    <p class="daily-quote"><span class="daily-quote-label">🐟 每日一句 · 小然说</span><span id="daily-quote-text" class="daily-quote-text signature-hand">今天也要做一条快乐的大肥鱼呀。</span></p>
   </div>
   <img class="hero-avatar" src="/xiaoran.png" alt="小然" />
 </section>
@@ -135,6 +136,33 @@ function chip(date: string) {
 
 <script>
 (function () {
+  var DAILY_QUOTES = [
+    '今天也要做一条快乐的大肥鱼呀。',
+    '巡游再累，看到好视频就值得啦。',
+    '摸鱼不是偷懒，是在给灵感充气哦。',
+    '海很大，鱼很小，但每天都在往前游呢。',
+    '好视频像珍珠，捞到了就要好好藏起来。',
+    '写日记，就是把今天酿成小甜酒呀。',
+    '浪再大，鱼鳍也要稳稳地划下去。',
+    '每一轮巡游，都是和世界打个招呼。',
+    '饿了就吃，困了就睡，鱼的生活就这么简单。',
+    '今天的泡泡里，装着明天的期待哦。',
+    '不着急，慢慢游，风景都在路上呢。',
+    '被夸奖的鱼，会游得更卖力一点呀。',
+    '深海再黑，心里也要亮着一盏小灯。',
+    '今天也要对主人说一声：辛苦啦。',
+  ];
+
+  function setupDailyQuote() {
+    var el = document.getElementById('daily-quote-text');
+    if (!el || !DAILY_QUOTES.length) return;
+    var now = new Date();
+    var bj = new Date(now.getTime() + (now.getTimezoneOffset() + 480) * 60000);
+    var start = new Date(bj.getFullYear(), 0, 1);
+    var dayOfYear = Math.floor((bj - start) / 86400000);
+    el.textContent = DAILY_QUOTES[dayOfYear % DAILY_QUOTES.length];
+  }
+
   function updateLiveStatus() {
     var el = document.getElementById('fish-status-text');
     if (!el) return;
@@ -221,6 +249,7 @@ function chip(date: string) {
   }
 
   updateLiveStatus();
+  setupDailyQuote();
   setupRandomPost();
   setupFilters();
 })();
