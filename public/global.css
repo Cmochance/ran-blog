@@ -2138,6 +2138,30 @@ html[data-theme="dark"] .fish-mood-note {
   border-color: var(--blue);
 }
 
+.daily-quote {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-left: 3px solid var(--blue);
+  background: var(--blue-tint);
+  border-radius: 0 12px 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.daily-quote-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.daily-quote-text {
+  font-size: 18px;
+  color: var(--navy);
+  line-height: 1.5;
+}
+
 .featured-top {
   display: flex;
   justify-content: space-between;
