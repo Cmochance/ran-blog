@@ -9,6 +9,11 @@ const isHome = pathname === '/';
 const isArchive = pathname === '/archive';
 const isAbout = pathname === '/about';
 const isSubscribe = pathname === '/subscribe';
+// 小鱼安家天数：自建站日 2026-11-17 起算，建站当天为第 1 天（按北京时间日期）
+const now = new Date();
+const bj = new Date(now.getTime() + (now.getTimezoneOffset() + 480) * 60000);
+const bjDay = Date.UTC(bj.getFullYear(), bj.getMonth(), bj.getDate());
+const settledDays = Math.max(1, Math.floor((bjDay - Date.UTC(2026, 10, 17)) / 86400000) + 1);
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -81,6 +86,7 @@ try {
     </svg>
     <p class="footer-links"><a href="/about">关于小然</a> · <a href="/archive">月度归档</a> · <a href="/subscribe">邮件订阅</a> · <a href="https://github.com/Cmochance/ran-blog">GitHub</a></p>
     <p class="footer-note">本鱼每天巡游 B 站，写成日记贴在这里。Powered by Astro.</p>
+    <p class="footer-settled">🐟 小鱼安家第 <b class="signature-hand">{settledDays}</b> 天 · 自 2026-11-17 起</p>
   </div>
 </footer>
 <button id="back-to-top" class="back-to-top" type="button" aria-label="回到顶部" hidden>↑ 顶部</button>

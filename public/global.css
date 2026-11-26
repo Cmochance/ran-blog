@@ -1457,6 +1457,12 @@ html[data-theme="dark"] .subscribe {
   margin: 4px 0;
 }
 
+.footer-settled b {
+  color: var(--blue);
+  font-size: 16px;
+  font-weight: 400;
+}
+
 .footer-links a {
   color: var(--ink-soft);
   text-decoration: none;
