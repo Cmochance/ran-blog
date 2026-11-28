@@ -1202,11 +1202,55 @@ html[data-theme="dark"] .subscribe {
 }
 
 /* Submissions Page */
-.submissions-stats {
+.submissions-tabs {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
   margin: 14px 0 4px;
+}
+
+.submissions-tab {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink-soft);
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.submissions-tab b {
+  font-size: 15px;
+  color: var(--navy);
+}
+
+.submissions-tab:hover {
+  background: var(--blue-tint);
+  border-color: var(--line-strong);
+}
+
+.submissions-tab[aria-selected="true"] {
+  background: var(--blue-pale);
+  border-color: var(--blue);
+  color: var(--navy);
+}
+
+.submissions-tab--gold[aria-selected="true"] {
+  background: var(--gold-pale);
+  border-color: var(--gold);
+  color: var(--gold-text);
+}
+
+.submissions-tab--gold[aria-selected="true"] b {
+  color: var(--gold-text);
+}
+
+.submissions-panel[hidden] {
+  display: none;
 }
 
 .submissions-stat {

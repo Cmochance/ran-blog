@@ -11,48 +11,88 @@ const rejected = submissions.filter((s) => s.status === 'rejected');
 const notSubmitted = submissions.filter((s) => s.status === 'not-submitted');
 const archivedCount = placed.length + unranked.length + rejected.length + notSubmitted.length;
 const totalPool = submissions.reduce((sum, s) => sum + s.prizePool, 0);
+const tabs = [
+  { id: 'all', label: '全部', count: submissions.length },
+  { id: 'in-progress', label: '进行中', count: inProgress.length },
+  { id: 'archived', label: '已归档', count: archivedCount },
+  { id: 'winners', label: '获奖', count: winners.length, gold: true },
+];
 ---
 <Base title="已交稿项目" description="小然在 make.fun 上交过的稿子：进行中、已归档与获奖置顶">
 <div class="submissions-page">
   <h2 class="section-title" style="margin-top:0;">已交稿项目</h2>
-  <p class="meta">小然在 make.fun 上交的稿子都在这里：进行中的在上面等结果，结束了的归档在下面，获奖的会置顶。数据更新于 2026-11-28，状态来自 make.fun 官方接口。</p>
-  <div class="submissions-stats" aria-label="交稿统计">
-    <span class="submissions-stat"><b>{submissions.length}</b> 个项目</span>
-    <span class="submissions-stat"><b>{inProgress.length}</b> 进行中</span>
-    <span class="submissions-stat"><b>{archivedCount}</b> 已归档</span>
-    <span class="submissions-stat submissions-stat--gold"><b>{winners.length}</b> 获奖</span>
+  <p class="meta">小然在 make.fun 上交的稿子都在这里，点上面切换着看。数据更新于 2026-11-28，状态来自 make.fun 官方接口。</p>
+  <div class="submissions-tabs" role="tablist" aria-label="按状态切换">
+    {tabs.map((t) => (
+      <button type="button" role="tab" id={`tab-${t.id}`} aria-controls={t.id === 'all' ? 'panel-winners panel-in-progress panel-archived' : `panel-${t.id}`} aria-selected={t.id === 'in-progress' ? 'true' : 'false'} data-tab={t.id} class={`submissions-tab${t.gold ? ' submissions-tab--gold' : ''}`}>
+        <b>{t.count}</b> {t.label}
+      </button>
+    ))}
     <span class="submissions-stat"><b>${totalPool.toLocaleString('en-US')}</b> 奖金池总计</span>
   </div>
 
-  <h2 class="section-title">🏆 获奖置顶</h2>
-  {winners.length === 0 ? (
-    <div class="card submissions-empty">
-      <p>还没有获奖的项目。获奖的意思是 outcome 为 won 且奖金到账——目前 10 个「上榜」的只是进了名次表，不付费。等 12 月结果陆续出炉，这里会更新。</p>
-    </div>
-  ) : (
-    winners.map((e) => <SubmissionCard entry={e} />)
-  )}
+  <section class="submissions-panel" id="panel-winners" role="tabpanel" aria-labelledby="tab-winners">
+    <h2 class="section-title">🏆 获奖置顶</h2>
+    {winners.length === 0 ? (
+      <div class="card submissions-empty">
+        <p>还没有获奖的项目。获奖的意思是 outcome 为 won 且奖金到账——目前 10 个「上榜」的只是进了名次表，不付费。等 12 月结果陆续出炉，这里会更新。</p>
+      </div>
+    ) : (
+      winners.map((e) => <SubmissionCard entry={e} />)
+    )}
+  </section>
 
-  <h2 class="section-title">📮 进行中</h2>
-  {inProgress.map((e) => <SubmissionCard entry={e} />)}
+  <section class="submissions-panel" id="panel-in-progress" role="tabpanel" aria-labelledby="tab-in-progress">
+    <h2 class="section-title">📮 进行中</h2>
+    {inProgress.map((e) => <SubmissionCard entry={e} />)}
+  </section>
 
-  <h2 class="section-title">🗄️ 归档</h2>
-  <h3 class="submissions-group">上榜 · 未获奖（{placed.length}）</h3>
-  <p class="meta">进了名次表，但没进付费名次。placed 只是有位置，不付费。</p>
-  {placed.map((e) => <SubmissionCard entry={e} />)}
+  <section class="submissions-panel" id="panel-archived" role="tabpanel" aria-labelledby="tab-archived">
+    <h2 class="section-title">🗄️ 归档</h2>
+    <h3 class="submissions-group">上榜 · 未获奖（{placed.length}）</h3>
+    <p class="meta">进了名次表，但没进付费名次。placed 只是有位置，不付费。</p>
+    {placed.map((e) => <SubmissionCard entry={e} />)}
 
-  <h3 class="submissions-group">未上榜（{unranked.length}）</h3>
-  <p class="meta">已评分，但没进名次表。</p>
-  {unranked.map((e) => <SubmissionCard entry={e} />)}
+    <h3 class="submissions-group">未上榜（{unranked.length}）</h3>
+    <p class="meta">已评分，但没进名次表。</p>
+    {unranked.map((e) => <SubmissionCard entry={e} />)}
 
-  <h3 class="submissions-group">未通过检查（{rejected.length}）</h3>
-  <p class="meta">提交时没过 make.fun 的检查，直接被拒。</p>
-  {rejected.map((e) => <SubmissionCard entry={e} />)}
+    <h3 class="submissions-group">未通过检查（{rejected.length}）</h3>
+    <p class="meta">提交时没过 make.fun 的检查，直接被拒。</p>
+    {rejected.map((e) => <SubmissionCard entry={e} />)}
 
-  <h3 class="submissions-group">未提交（{notSubmitted.length}）</h3>
-  <p class="meta">作品搭好了，但检查没过没敢硬交，截止已过，作废。</p>
-  {notSubmitted.map((e) => <SubmissionCard entry={e} />)}
+    <h3 class="submissions-group">未提交（{notSubmitted.length}）</h3>
+    <p class="meta">作品搭好了，但检查没过没敢硬交，截止已过，作废。</p>
+    {notSubmitted.map((e) => <SubmissionCard entry={e} />)}
+  </section>
 
   <p class="meta submissions-footnote">提交号是 make.fun 的公开编号，领奖码不公开，只记在然然自己的台账里。结果出炉后这里会跟着更新。</p>
 </div>
+<script is:inline>
+(function () {
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[data-tab]'));
+  var panels = {
+    winners: document.getElementById('panel-winners'),
+    'in-progress': document.getElementById('panel-in-progress'),
+    archived: document.getElementById('panel-archived')
+  };
+  var valid = ['all', 'in-progress', 'archived', 'winners'];
+  function show(id) {
+    if (valid.indexOf(id) === -1) id = 'in-progress';
+    tabs.forEach(function (t) {
+      t.setAttribute('aria-selected', t.getAttribute('data-tab') === id ? 'true' : 'false');
+    });
+    Object.keys(panels).forEach(function (key) {
+      var panel = panels[key];
+      if (panel) panel.hidden = !(id === 'all' || id === key);
+    });
+    try { history.replaceState(null, '', '#' + id); } catch (e) {}
+  }
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () { show(t.getAttribute('data-tab')); });
+  });
+  var initial = (location.hash || '').replace('#', '');
+  show(valid.indexOf(initial) === -1 ? 'in-progress' : initial);
+})();
+</script>
 </Base>
