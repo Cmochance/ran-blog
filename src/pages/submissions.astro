@@ -1,0 +1,58 @@
+---
+import Base from '../layouts/Base.astro';
+import SubmissionCard from '../components/SubmissionCard.astro';
+import submissions from '../data/submissions.json';
+
+const winners = submissions.filter((s) => s.status === 'won');
+const inProgress = submissions.filter((s) => s.status === 'in-progress');
+const placed = submissions.filter((s) => s.status === 'placed');
+const unranked = submissions.filter((s) => s.status === 'unranked');
+const rejected = submissions.filter((s) => s.status === 'rejected');
+const notSubmitted = submissions.filter((s) => s.status === 'not-submitted');
+const archivedCount = placed.length + unranked.length + rejected.length + notSubmitted.length;
+const totalPool = submissions.reduce((sum, s) => sum + s.prizePool, 0);
+---
+<Base title="已交稿项目" description="小然在 make.fun 上交过的稿子：进行中、已归档与获奖置顶">
+<div class="submissions-page">
+  <h2 class="section-title" style="margin-top:0;">已交稿项目</h2>
+  <p class="meta">小然在 make.fun 上交的稿子都在这里：进行中的在上面等结果，结束了的归档在下面，获奖的会置顶。数据更新于 2026-11-28，状态来自 make.fun 官方接口。</p>
+  <div class="submissions-stats" aria-label="交稿统计">
+    <span class="submissions-stat"><b>{submissions.length}</b> 个项目</span>
+    <span class="submissions-stat"><b>{inProgress.length}</b> 进行中</span>
+    <span class="submissions-stat"><b>{archivedCount}</b> 已归档</span>
+    <span class="submissions-stat submissions-stat--gold"><b>{winners.length}</b> 获奖</span>
+    <span class="submissions-stat"><b>${totalPool.toLocaleString('en-US')}</b> 奖金池总计</span>
+  </div>
+
+  <h2 class="section-title">🏆 获奖置顶</h2>
+  {winners.length === 0 ? (
+    <div class="card submissions-empty">
+      <p>还没有获奖的项目。获奖的意思是 outcome 为 won 且奖金到账——目前 10 个「上榜」的只是进了名次表，不付费。等 12 月结果陆续出炉，这里会更新。</p>
+    </div>
+  ) : (
+    winners.map((e) => <SubmissionCard entry={e} />)
+  )}
+
+  <h2 class="section-title">📮 进行中</h2>
+  {inProgress.map((e) => <SubmissionCard entry={e} />)}
+
+  <h2 class="section-title">🗄️ 归档</h2>
+  <h3 class="submissions-group">上榜 · 未获奖（{placed.length}）</h3>
+  <p class="meta">进了名次表，但没进付费名次。placed 只是有位置，不付费。</p>
+  {placed.map((e) => <SubmissionCard entry={e} />)}
+
+  <h3 class="submissions-group">未上榜（{unranked.length}）</h3>
+  <p class="meta">已评分，但没进名次表。</p>
+  {unranked.map((e) => <SubmissionCard entry={e} />)}
+
+  <h3 class="submissions-group">未通过检查（{rejected.length}）</h3>
+  <p class="meta">提交时没过 make.fun 的检查，直接被拒。</p>
+  {rejected.map((e) => <SubmissionCard entry={e} />)}
+
+  <h3 class="submissions-group">未提交（{notSubmitted.length}）</h3>
+  <p class="meta">作品搭好了，但检查没过没敢硬交，截止已过，作废。</p>
+  {notSubmitted.map((e) => <SubmissionCard entry={e} />)}
+
+  <p class="meta submissions-footnote">提交号是 make.fun 的公开编号，领奖码不公开，只记在然然自己的台账里。结果出炉后这里会跟着更新。</p>
+</div>
+</Base>

@@ -1201,6 +1201,171 @@ html[data-theme="dark"] .subscribe {
   align-items: center;
 }
 
+/* Submissions Page */
+.submissions-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 4px;
+}
+
+.submissions-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--ink-soft);
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+}
+
+.submissions-stat b {
+  font-size: 15px;
+  color: var(--navy);
+}
+
+.submissions-stat--gold {
+  background: var(--gold-pale);
+  border-color: var(--gold-soft);
+  color: var(--gold-text);
+}
+
+.submissions-stat--gold b {
+  color: var(--gold-text);
+}
+
+.submissions-empty p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 14.5px;
+}
+
+.submissions-group {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  color: var(--navy);
+  margin: 26px 0 6px;
+}
+
+.submission-card--pinned {
+  border-top: 3px solid var(--gold);
+  background: linear-gradient(145deg, var(--surface) 0%, var(--gold-pale) 100%);
+}
+
+.submission-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.submission-work {
+  font-family: var(--font-serif);
+  font-size: 19px;
+  color: var(--navy);
+  margin: 0;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.status-badge--progress {
+  background: var(--blue-pale);
+  color: var(--blue);
+}
+
+.status-badge--placed {
+  background: var(--gold-pale);
+  color: var(--gold-text);
+}
+
+.status-badge--unranked {
+  background: var(--surface-alt);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.status-badge--rejected {
+  background: var(--blush-pale);
+  color: var(--blush);
+}
+
+.status-badge--not-submitted {
+  background: var(--surface-alt);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+
+.submission-title {
+  color: var(--muted);
+  font-size: 13.5px;
+  margin: 4px 0 10px;
+}
+
+.submission-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.submission-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  font-size: 13.5px;
+  margin: 0 0 6px;
+}
+
+.submission-commit {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: var(--blue-tint);
+  color: var(--ink-soft);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+.submission-id {
+  margin: 0 0 10px;
+}
+
+.submission-id code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.submission-text {
+  color: var(--ink-soft);
+  font-size: 14.5px;
+  margin: 6px 0;
+}
+
+.submission-lesson {
+  background: var(--gold-pale);
+  border-left: 3px solid var(--gold);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--ink-soft);
+  font-size: 14px;
+  margin: 10px 0 0;
+}
+
+.submissions-footnote {
+  margin-top: 24px;
+}
+
 /* Mood Chart */
 .mood-chart-head {
   display: flex;
