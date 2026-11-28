@@ -10,7 +10,7 @@ const unranked = submissions.filter((s) => s.status === 'unranked');
 const rejected = submissions.filter((s) => s.status === 'rejected');
 const notSubmitted = submissions.filter((s) => s.status === 'not-submitted');
 const archivedCount = placed.length + unranked.length + rejected.length + notSubmitted.length;
-const totalPool = submissions.reduce((sum, s) => sum + s.prizePool, 0);
+const totalWinnings = submissions.reduce((sum, s) => sum + (s.winnings ?? 0), 0);
 const tabs = [
   { id: 'all', label: '全部', count: submissions.length },
   { id: 'in-progress', label: '进行中', count: inProgress.length },
@@ -28,7 +28,7 @@ const tabs = [
         <b>{t.count}</b> {t.label}
       </button>
     ))}
-    <span class="submissions-stat"><b>${totalPool.toLocaleString('en-US')}</b> 奖金池总计</span>
+    <span class="submissions-stat"><b>${totalWinnings.toLocaleString('en-US')}</b> 已获奖金</span>
   </div>
 
   <section class="submissions-panel" id="panel-winners" role="tabpanel" aria-labelledby="tab-winners">
