@@ -67,20 +67,24 @@ const tocHeadings = headings
 
 <nav class="prevnext">
   {prev ? (
-    <a href={`/diary/${prev.date}/`}>
+    <a href={`/diary/${prev.date}/`} data-nav="prev">
       <span class="prevnext-dir">← 前一篇</span>
       <span class="prevnext-date">{prev.date}</span>
       <strong class="prevnext-title">{prev.title}</strong>
     </a>
   ) : <span />}
   {next ? (
-    <a href={`/diary/${next.date}/`}>
+    <a href={`/diary/${next.date}/`} data-nav="next">
       <span class="prevnext-dir">下一篇 →</span>
       <span class="prevnext-date">{next.date}</span>
       <strong class="prevnext-title">{next.title}</strong>
     </a>
   ) : <span />}
 </nav>
+
+{(prev || next) && (
+  <p class="prevnext-hint">💡 小提示：按 ← → 键也能翻到上一篇 / 下一篇哦</p>
+)}
 
 <Comments page={date} />
 
@@ -192,6 +196,20 @@ const tocHeadings = headings
     });
   }
 
+  function setupKeyboardNav() {
+    function go(dir) {
+      var link = document.querySelector('.prevnext a[data-nav="' + dir + '"]');
+      if (link) window.location.href = link.getAttribute('href');
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable)) return;
+      if (e.key === 'ArrowLeft') go('prev');
+      else if (e.key === 'ArrowRight') go('next');
+    });
+  }
+
   function setupScrollWidgets() {
     var bar = document.getElementById('reading-progress');
     var ticking = false;
@@ -223,11 +241,13 @@ const tocHeadings = headings
       enhanceProse();
       setupScrollWidgets();
       setupShareButton();
+      setupKeyboardNav();
     });
   } else {
     enhanceProse();
     setupScrollWidgets();
     setupShareButton();
+    setupKeyboardNav();
   }
 })();
 </script>
