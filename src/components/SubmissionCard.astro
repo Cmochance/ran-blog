@@ -7,6 +7,7 @@ interface Entry {
   prizeNote: string;
   repo: string;
   repoShort: string;
+  live?: string;
   commit: string | null;
   submission: string | null;
   submitted: string | null;
@@ -49,6 +50,7 @@ const statusClass: Record<string, string> = {
     <span class="mini-badge">结果 {e.resultDue ?? '—'}</span>
   </div>
   <p class="submission-links">
+    {e.live && <a href={e.live} target="_blank" rel="noopener">在线看 ↗</a>}
     <a href={e.repo} target="_blank" rel="noopener">仓库 {e.repoShort}</a>
     {e.commit && <code class="submission-commit">{e.commit}</code>}
     <a href={`https://make.fun/c/${e.slug}/`} target="_blank" rel="noopener">比赛页面 ↗</a>
