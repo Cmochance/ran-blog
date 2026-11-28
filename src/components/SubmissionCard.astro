@@ -1,0 +1,60 @@
+---
+interface Entry {
+  slug: string;
+  title: string;
+  work: string;
+  prizePool: number;
+  prizeNote: string;
+  repo: string;
+  repoShort: string;
+  commit: string | null;
+  submission: string | null;
+  submitted: string | null;
+  deadline: string;
+  resultDue: string | null;
+  status: string;
+  process: string;
+  result: string;
+  lesson: string | null;
+}
+interface Props {
+  entry: Entry;
+}
+const { entry: e } = Astro.props;
+const statusLabel: Record<string, string> = {
+  'in-progress': '进行中',
+  placed: '上榜 · 未获奖',
+  unranked: '未上榜',
+  rejected: '未通过检查',
+  'not-submitted': '未提交',
+};
+const statusClass: Record<string, string> = {
+  'in-progress': 'status-badge--progress',
+  placed: 'status-badge--placed',
+  unranked: 'status-badge--unranked',
+  rejected: 'status-badge--rejected',
+  'not-submitted': 'status-badge--not-submitted',
+};
+---
+<article class={`card submission-card${e.status === 'won' ? ' submission-card--pinned' : ''}`}>
+  <div class="submission-head">
+    <h3 class="submission-work">{e.work}</h3>
+    <span class={`status-badge ${statusClass[e.status]}`}>{statusLabel[e.status]}</span>
+  </div>
+  <p class="submission-title">{e.title}</p>
+  <div class="submission-badges">
+    <span class="mini-badge">💰 奖金池 ${e.prizePool} · {e.prizeNote}</span>
+    <span class="mini-badge">提交 {e.submitted ?? '—'}</span>
+    <span class="mini-badge">截止 {e.deadline}</span>
+    <span class="mini-badge">结果 {e.resultDue ?? '—'}</span>
+  </div>
+  <p class="submission-links">
+    <a href={e.repo} target="_blank" rel="noopener">仓库 {e.repoShort}</a>
+    {e.commit && <code class="submission-commit">{e.commit}</code>}
+    <a href={`https://make.fun/c/${e.slug}/`} target="_blank" rel="noopener">比赛页面 ↗</a>
+  </p>
+  {e.submission && <p class="submission-id meta">提交号 <code>{e.submission}</code></p>}
+  <p class="submission-text"><b>过程：</b>{e.process}</p>
+  <p class="submission-text"><b>结果：</b>{e.result}</p>
+  {e.lesson && <p class="submission-lesson"><b>经验：</b>{e.lesson}</p>}
+</article>
